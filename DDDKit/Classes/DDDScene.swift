@@ -9,7 +9,7 @@
 import Foundation
 import GLMatrix
 
-public class DDDScene {
+open class DDDScene {
 	private var nodes = Set<DDDNode>()
 
 	public init() {}
