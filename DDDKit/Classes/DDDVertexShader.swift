@@ -13,7 +13,11 @@ public class DDDVertexShader: DDDShader {
 		try super.init(ofType: .vertex, from: content)
 	}
 
-	public init(fromResource name: String, withExtention ext: String) throws {
-		try super.init(ofType: .vertex, fromResource: name, withExtention: ext)
+	public init(
+		fromResource name: String,
+		withExtention ext: String,
+		in bundle: Bundle = Bundle.main
+	) throws {
+		try super.init(ofType: .vertex, fromResource: name, withExtention: ext, in: bundle)
 	}
 }

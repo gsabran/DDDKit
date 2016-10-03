@@ -26,10 +26,15 @@ public class DDDShader {
 		}
 	}
 	
-	init(ofType type: DDDShaderType, fromResource name: String, withExtention ext: String) throws {
+	init(
+		ofType type: DDDShaderType,
+		fromResource name: String,
+		withExtention ext: String,
+		in bundle: Bundle = Bundle.main
+	) throws {
 		self.type = type
 
-		let shaderPath = Bundle.main.path(forResource: name, ofType: ext)!
+		let shaderPath = bundle.path(forResource: name, ofType: ext)!
 		let shaderString = try NSString(contentsOfFile: shaderPath, encoding: String.Encoding.utf8.rawValue)
 
 		let glType = type == .vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER
