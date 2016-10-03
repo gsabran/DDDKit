@@ -19,7 +19,7 @@ public class DDDVideoTexture {
 	private var videoOutput: AVPlayerItemVideoOutput?
 
 	private let player: AVPlayer
-	private var item: AVPlayerItem?
+	private var videoItem: AVPlayerItem?
 	private var context: EAGLContext?
 
 	public init(player: AVPlayer) {
@@ -50,7 +50,7 @@ public class DDDVideoTexture {
 
 	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
 		guard let videoItem = player.currentItem else { return nil }
-		if videoOutput == nil {
+		if videoOutput == nil || self.videoItem !== videoItem {
 			// then
 			let pixelBuffAttributes = [
 				kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
@@ -59,9 +59,13 @@ public class DDDVideoTexture {
 			let videoOutput = AVPlayerItemVideoOutput.init(pixelBufferAttributes: pixelBuffAttributes)
 			videoItem.add(videoOutput)
 			self.videoOutput = videoOutput
+			self.videoItem = videoItem
 		}
 		guard let videoOutput = videoOutput else { return nil }
-		return videoOutput.copyPixelBuffer(forItemTime: videoItem.currentTime(), itemTimeForDisplay: nil)
+
+		let time = videoItem.currentTime()
+		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
+		return videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
 	}
 
 	private func refreshTexture() {
