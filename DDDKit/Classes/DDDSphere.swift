@@ -7,8 +7,14 @@
 //
 
 import Foundation
+
 public class DDDSphere: DDDGeometry {
-	public init(radius: Float = 1.0, rings: Int = 20, sectors: Int = 20, orientation: DDDOrientation = .outward) {
+	public init(
+		radius: GLfloat = 1.0,
+		rings: Int = 20,
+		sectors: Int = 20,
+		orientation: DDDOrientation = .outward
+		) {
 		let rStep = 1.0 / Float(rings - 1)
 		let sStep = 1.0 / Float(sectors - 1)
 
@@ -22,12 +28,15 @@ public class DDDSphere: DDDGeometry {
 			let r = Float(i)
 			for j in 0..<sectors {
 				let s = Float(j)
-				let y = sin(-pi / 2 + pi * r * rStep)
-				let x = cos(2 * pi * s * sStep) * cos(-pi / 2 + pi * r * rStep)
-				let z = sin(2 * pi * s * sStep) * cos(-pi / 2 + pi * r * rStep)
 
-				texCoords.append(s * sStep)
-				texCoords.append(r * rStep)
+				let theta = -pi / 2 + pi * r * rStep
+				let phi = 2 * pi * s * sStep + pi / 2
+				let y = sin(theta)
+				let x = cos(phi) * cos(theta)
+				let z = sin(phi) * cos(theta)
+
+				texCoords.append(1.0 - r * rStep)
+				texCoords.append(orientation == .inward ? s * sStep : 1.0 - s * sStep)
 
 				vertices.append(x * radius)
 				vertices.append(y * radius)
@@ -62,6 +71,10 @@ public class DDDSphere: DDDGeometry {
 			}
 		}
 
-		super.init(indices: indices, vertices: vertices, texCoords: texCoords)
+		super.init(
+			indices: indices,
+			vertices: vertices,
+			texCoords: texCoords
+		)
 	}
 }

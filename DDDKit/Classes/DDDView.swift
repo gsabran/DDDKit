@@ -12,7 +12,7 @@ import GLMatrix
 
 public class DDDView: UIView {
 	public var scene: DDDScene?
-	public var delegate: DDDSceneDelegate?
+	public weak var delegate: DDDSceneDelegate?
 	fileprivate let texturesPool = DDDTexturePool()
 
 	fileprivate var viewController: DDDViewController!
@@ -43,9 +43,13 @@ extension DDDView: DDDViewControllerDelegate {
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 
 		let aspect = Float(fabs(viewController.view.bounds.size.width / viewController.view.bounds.size.height))
-		let overture = Float(85.0)
+		let overture = Float(65.0)
 		let projection = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(overture), aspect, 0.1, 400.0)
 
 		scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool)
+	}
+	
+	public func willAppear() {
+		viewController.start()
 	}
 }

@@ -12,7 +12,7 @@ import GLKit
 public class DDDViewController: GLKViewController {
 	public var scene: DDDScene?
 
-	var renderedDelegate: DDDViewControllerDelegate?
+	weak var renderedDelegate: DDDViewControllerDelegate?
 
 	private var context: EAGLContext!
 
@@ -27,13 +27,28 @@ public class DDDViewController: GLKViewController {
 
 		self.preferredFramesPerSecond = 60
 		EAGLContext.setCurrent(context)
+		isPaused = false
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(start),
+			name: NSNotification.Name.UIApplicationDidBecomeActive,
+			object: nil
+		)
+	}
+
+	deinit {
+		NotificationCenter.default.removeObserver(self)
 	}
 
 	override public func glkView(_ view: GLKView, drawIn rect: CGRect) {
 		renderedDelegate?.shouldRender(view, in: rect, with: context)
 	}
+
+	@objc func start() {
+		isPaused = false
+	}
 }
 
-protocol DDDViewControllerDelegate {
+protocol DDDViewControllerDelegate: class {
 	func shouldRender(_ view: GLKView, in rect: CGRect, with context: EAGLContext)
 }

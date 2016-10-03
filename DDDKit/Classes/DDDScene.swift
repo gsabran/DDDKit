@@ -49,6 +49,6 @@ public class DDDScene {
 	}
 }
 
-public protocol DDDSceneDelegate {
+public protocol DDDSceneDelegate: class {
 	func willRender()
 }

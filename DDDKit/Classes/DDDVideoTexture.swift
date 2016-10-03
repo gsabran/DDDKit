@@ -19,6 +19,7 @@ public class DDDVideoTexture {
 	private var videoOutput: AVPlayerItemVideoOutput?
 
 	private let player: AVPlayer
+	private var item: AVPlayerItem?
 	private var context: EAGLContext?
 
 	public init(player: AVPlayer) {
