@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'DDDKit_Example' do
+  pod 'DDDKit', :path => '../'
+
+  target 'DDDKit_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
