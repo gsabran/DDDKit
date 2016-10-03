@@ -9,8 +9,8 @@
 import Foundation
 
 public class DDDVertexShader: DDDShader {
-	public init(from content: String) throws {
-		try super.init(ofType: .vertex, from: content)
+	public init(from content: String) {
+		super.init(ofType: .vertex, from: content)
 	}
 
 	public init(

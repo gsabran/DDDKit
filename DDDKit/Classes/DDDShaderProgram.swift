@@ -18,16 +18,56 @@ public class DDDShaderProgram: NSObject {
 
 	private var attributes: NSMutableArray
 	private var uniforms: NSMutableArray
-	private var vertex: DDDVertexShader?
-	private var fragment: DDDFragmentShader?
+	private(set) var vertex: DDDVertexShader?
+	private(set) var fragment: DDDFragmentShader?
 	private var program: GLuint
 	var programReference: GLuint {
 		return program
 	}
 
-	public init(vertex vShader: DDDVertexShader, fragment fShader: DDDFragmentShader) throws {
+	let shaderModifiers: [DDDShaderEntryPoint: String]?
+
+	private static func addShaderModifier(to shader: DDDShader, modifier: String) {
+		var shaderCode = String(shader.originalCode)
+
+		var parts = modifier.components(separatedBy: "#pragma body")
+		var bodyModifier = parts.popLast() ?? ""
+		var headerModifier = parts.popLast() ?? ""
+		let lines = bodyModifier.components(separatedBy: "\n")
+		lines.forEach { line in
+			if line.contains("uniform") {
+				headerModifier.append(line + "\n")
+			}
+		}
+		bodyModifier = lines.filter { return !$0.contains("uniform") }.joined(separator: "\n")
+
+		shaderCode = shaderCode.replacingOccurrences(of: "// body modifier here", with: bodyModifier)
+		shaderCode = shaderCode.replacingOccurrences(of: "// header modifier here", with: headerModifier)
+
+		shader.code = NSString(string: shaderCode)
+	}
+
+	public init(
+		vertex vShader: DDDVertexShader,
+		fragment fShader: DDDFragmentShader,
+		shaderModifiers: [DDDShaderEntryPoint: String]? = nil
+	) throws {
+		self.shaderModifiers = shaderModifiers
 		self.vertex = vShader
 		self.fragment = fShader
+
+		if let modifiers = shaderModifiers {
+			if let vModifier = modifiers[.geometry] {
+				DDDShaderProgram.addShaderModifier(to: vShader, modifier: vModifier)
+			}
+			if let fModifier = modifiers[.fragment] {
+				DDDShaderProgram.addShaderModifier(to: fShader, modifier: fModifier)
+			}
+		}
+		try vShader.compile()
+		try fShader.compile()
+
+
 		self.attributes = []
 		self.uniforms = []
 		self.program = glCreateProgram()
@@ -92,4 +132,9 @@ public class DDDShaderProgram: NSObject {
 	func use() {
 		glUseProgram(program)
 	}
+}
+
+public enum DDDShaderEntryPoint {
+	case fragment
+	case geometry
 }

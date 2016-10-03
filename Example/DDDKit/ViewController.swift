@@ -60,7 +60,6 @@ class ViewController: UIViewController {
 	}
 
 	fileprivate var videoNode: DDDNode!
-	fileprivate var videoNode2: DDDNode!
 	private func configureGLKView() {
 		let dddView = DDDView(frame: self.view.bounds)
 		dddView.delegate = self
@@ -74,7 +73,7 @@ class ViewController: UIViewController {
 		do {
 			let vShader = try DDDVertexShader(fromResource: "Shader", withExtention: "vsh")
 			let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-			let program = DDDShaderProgram(vertex: vShader, fragment: fShader)
+			let program = try DDDShaderProgram(vertex: vShader, fragment: fShader, shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.xyz * 0.5, 1.0);"])
 			videoNode.material.shaderProgram = program
 
 
@@ -93,33 +92,6 @@ class ViewController: UIViewController {
 
 		dddView.scene?.add(node: videoNode)
 		self.videoNode = videoNode
-
-
-
-		let videoNode2 = DDDNode()
-		videoNode2.geometry = DDDSphere(radius: 1.0, rings: 40, sectors: 40, orientation: .inward)
-		do {
-			let vShader = try DDDVertexShader(fromResource: "Shader", withExtention: "vsh")
-			let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-			let program = DDDShaderProgram(vertex: vShader, fragment: fShader)
-			videoNode2.material.shaderProgram = program
-
-
-
-			let path = Bundle.main.path(forResource: "kauai", ofType: "jpg")!
-			let image = UIImage(contentsOfFile: path)!.cgImage!
-			let texture = DDDImageTexture(image: image)
-			videoNode2.material.set(property: texture, for: "image")
-
-
-			videoNode2.material.set(property: videoTexture, for: "SamplerY", and: "SamplerUV")
-		} catch {
-			print("could not set shaders: \(error)")
-		}
-
-		dddView.scene?.add(node: videoNode2)
-		self.videoNode2 = videoNode2
-
 	}
 
 	private func play() {
@@ -143,23 +115,11 @@ extension ViewController: DDDSceneDelegate {
 		videoNode.rotateX(by: dt1)
 		videoNode.rotateY(by: dt2)
 		videoNode.rotateZ(by: dt3)
-		videoNode.position = Vec3(v: (0, 2, -4))
+		videoNode.position = Vec3(v: (0, 0, -3))
 		if dt1 > Float.pi {
 			videoNode.material.set(vec3: red, for: "color")
 		} else {
 			videoNode.material.set(vec3: green, for: "color")
 		}
-
-		videoNode2.rotation = Quat.init(x: 0, y: 0, z: 0, w: 1)
-		videoNode2.rotateX(by: dt1)
-		videoNode2.rotateY(by: dt2)
-		videoNode2.rotateZ(by: dt3)
-		videoNode2.position = Vec3(v: (0, -2, -4))
-		if dt1 > Float.pi {
-			videoNode2.material.set(vec3: green, for: "color")
-		} else {
-			videoNode2.material.set(vec3: red, for: "color")
-		}
-		
 	}
 }

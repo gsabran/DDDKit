@@ -16,12 +16,14 @@ public class DDDMaterial {
 	public var shaderProgram: DDDShaderProgram? {
 		didSet {
 			guard let program = shaderProgram else { return }
+
 			properties.forEach { prop in
 				// reattach the property to a uniform
 				prop.location = program.indexFor(uniformNamed: prop.locationName)
 			}
 		}
 	}
+
 
 	public func set(property: DDDProperty, for key: String) {
 		remove(for: key)
@@ -51,7 +53,7 @@ public class DDDMaterial {
 
 
 
-	
+
 
 	private func remove(for key: String) {
 		var toBeRemoved = [DDDProgramProperty]()

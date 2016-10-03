@@ -13,7 +13,7 @@ uniform sampler2D image;
 uniform mediump vec3 color;
 
 varying mediump vec2 v_textureCoordinate;
-
+// header modifier here
 
 void main() {
     mediump vec3 yuv;
@@ -21,17 +21,13 @@ void main() {
     
     yuv.x = texture2D(SamplerY, v_textureCoordinate).r;
     yuv.yz = texture2D(SamplerUV, v_textureCoordinate).rg - vec2(0.5, 0.5);
-    yuv.z = 0.0;
     
     
     // Using BT.709 which is the standard for HDTV
     rgb = mat3(      1,       1,      1,
                0, -.18732, 1.8556,
                1.57481, -.46813,      0) * vec3(yuv.xyz);
-//    gl_FragColor = vec4(v_textureCoordinate, 0.0, 1);
-//    gl_FragColor = vec4(0.0 * yuv.x, 0.0 * yuv.y, yuv.z, 1.0);
 
-	mediump vec3 imageRGB = texture2D(image, v_textureCoordinate).rgb;
-
-    gl_FragColor = vec4(imageRGB * 0.3 + color * 0.3 + rgb * 0.4, 1.0);
+    gl_FragColor = vec4(rgb, 1.0);
+	// body modifier here
 }

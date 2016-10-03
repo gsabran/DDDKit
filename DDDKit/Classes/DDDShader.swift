@@ -16,14 +16,17 @@ public enum DDDShaderType {
 public class DDDShader {
 	var shaderReference = GLuint()
 	public let type: DDDShaderType
+	var originalCode: NSString
+	var code: NSString
 
-	init (ofType type: DDDShaderType, from content: String) throws {
+	init (ofType type: DDDShaderType, from content: String) {
 		self.type = type
 
 		let glType = type == .vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER
-		if !compile(type: GLenum(glType), string: NSString(string: content), shader: &shaderReference) {
-			throw DDDError.shaderFailedToCompile
-		}
+
+		let shaderString = NSString(string: content)
+		self.originalCode = shaderString
+		self.code = shaderString
 	}
 	
 	init(
@@ -36,11 +39,8 @@ public class DDDShader {
 
 		let shaderPath = bundle.path(forResource: name, ofType: ext)!
 		let shaderString = try NSString(contentsOfFile: shaderPath, encoding: String.Encoding.utf8.rawValue)
-
-		let glType = type == .vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER
-		if !compile(type: GLenum(glType), string: shaderString, shader: &shaderReference) {
-			throw DDDError.shaderFailedToCompile
-		}
+		self.originalCode = shaderString
+		self.code = shaderString
 	}
 
 	deinit {
@@ -49,14 +49,19 @@ public class DDDShader {
 		}
 	}
 
-	private func compile(type: GLenum, string shaderString: NSString, shader: UnsafeMutablePointer<GLuint>) -> Bool {
-		shader.pointee = glCreateShader(type)
+	func compile() throws {
+		try compile(shader: &shaderReference)
+	}
+
+	private func compile(shader: UnsafeMutablePointer<GLuint>) throws {
+		let glType = type == .vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER
+		shader.pointee = glCreateShader(GLenum(glType))
 		if shader.pointee == 0 {
 			NSLog("OpenGLView compileShader():  glCreateShader failed")
-			return false
+			throw DDDError.shaderFailedToCompile
 		}
 
-		var shaderStringUTF8 = shaderString.utf8String
+		var shaderStringUTF8 = code.utf8String
 		glShaderSource(shader.pointee, 1, &shaderStringUTF8, nil)
 
 		glCompileShader(shader.pointee)
@@ -71,9 +76,7 @@ public class DDDShader {
 			NSLog("OpenGLView compileShader():  glCompileShader() failed:  %@", String(cString: infoLog))
 
 			infoLog.deallocate(capacity: 256)
-			return false
+			throw DDDError.shaderFailedToCompile
 		}
-
-		return true
 	}
 }
