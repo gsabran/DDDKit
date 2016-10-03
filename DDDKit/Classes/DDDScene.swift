@@ -7,10 +7,12 @@
 //
 
 import Foundation
-import GLMatrix
 
 public class DDDScene {
 	private var nodes = Set<DDDNode>()
+
+	public init() {}
+
 	func render(with projection: Mat4, context: EAGLContext, in pool: DDDTexturePool) {
 		do {
 			var properties = Set<DDDProperty>()

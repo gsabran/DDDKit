@@ -8,6 +8,7 @@
 
 import UIKit
 import DDDKit
+import GLKit
 import AVFoundation
 
 class ViewController: UIViewController {
@@ -134,7 +135,7 @@ class ViewController: UIViewController {
 	}
 }
 
-extension PlayerViewController: DDDSceneDelegate {
+extension ViewController: DDDSceneDelegate {
 	func willRender() {
 		let d = Date()
 		let dt1 = Float((d.timeIntervalSince1970 / 3.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))

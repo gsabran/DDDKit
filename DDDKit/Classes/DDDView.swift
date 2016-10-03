@@ -8,7 +8,6 @@
 
 import UIKit
 import GLKit
-import GLMatrix
 
 public class DDDView: UIView {
 	public var scene: DDDScene?
@@ -25,7 +24,7 @@ public class DDDView: UIView {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	override init(frame: CGRect) {
+	public override init(frame: CGRect) {
 		super.init(frame: frame)
 		viewController = DDDViewController()
 		viewController.renderedDelegate = self

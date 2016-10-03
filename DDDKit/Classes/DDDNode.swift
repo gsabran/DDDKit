@@ -17,14 +17,16 @@ public enum DDDError: Error {
 }
 
 public class DDDNode {
-	public var position = GLKVector3(x: 0, y: 0, z: 0)
+	public var position = Vec3.Zero()
 	public var rotation = Quat.fromValues(x: 0, y: 0, z: 0, w: 1)
 	public var geometry: DDDGeometry?
 	public let material = DDDMaterial()
 
+	public init() {}
+
 	fileprivate let id = Int(arc4random())
-	private let _modelView = GLKMatrix4Identity
-	var modelView: GLKMatrix4 {
+	private let _modelView = Mat4.Identity()
+	var modelView: Mat4 {
 		Mat4.fromQuat(q: rotation, andOutputTo: _modelView)
 		_modelView.translate(by: position)
 		return _modelView

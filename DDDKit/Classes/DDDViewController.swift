@@ -8,7 +8,6 @@
 
 import UIKit
 import GLKit
-import GLMatrix
 
 public class DDDViewController: GLKViewController {
 	public var scene: DDDScene?

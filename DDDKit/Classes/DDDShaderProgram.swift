@@ -25,7 +25,7 @@ public class DDDShaderProgram: NSObject {
 		return program
 	}
 
-	init(vertex vShader: DDDVertexShader, fragment fShader: DDDFragmentShader) {
+	public init(vertex vShader: DDDVertexShader, fragment fShader: DDDFragmentShader) {
 		self.vertex = vShader
 		self.fragment = fShader
 		self.attributes = []

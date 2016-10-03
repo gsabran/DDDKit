@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import GLMatrix
 import GLKit
 
 public class DDDMaterial {
