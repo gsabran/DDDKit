@@ -9,8 +9,8 @@
 import Foundation
 
 public class DDDFragmentShader: DDDShader {
-	public init(from content: String) throws {
-		try super.init(ofType: .fragment, from: content)
+	public init(from content: String) {
+		super.init(ofType: .fragment, from: content)
 	}
 
 	public init(

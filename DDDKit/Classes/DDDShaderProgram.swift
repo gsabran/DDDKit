@@ -48,24 +48,26 @@ public class DDDShaderProgram: NSObject {
 	}
 
 	public init(
-		vertex vShader: DDDVertexShader,
-		fragment fShader: DDDFragmentShader,
+		vertex vShader: DDDVertexShader? = nil,
+		fragment fShader: DDDFragmentShader? = nil,
 		shaderModifiers: [DDDShaderEntryPoint: String]? = nil
 	) throws {
 		self.shaderModifiers = shaderModifiers
-		self.vertex = vShader
-		self.fragment = fShader
+		let vertex = vShader ?? DDDDefaultVertexShader()
+		self.vertex = vertex
+		let fragment = fShader ?? DDDDefaultFragmentShader()
+		self.fragment = fragment
 
 		if let modifiers = shaderModifiers {
 			if let vModifier = modifiers[.geometry] {
-				DDDShaderProgram.addShaderModifier(to: vShader, modifier: vModifier)
+				DDDShaderProgram.addShaderModifier(to: vertex, modifier: vModifier)
 			}
 			if let fModifier = modifiers[.fragment] {
-				DDDShaderProgram.addShaderModifier(to: fShader, modifier: fModifier)
+				DDDShaderProgram.addShaderModifier(to: fragment, modifier: fModifier)
 			}
 		}
-		try vShader.compile()
-		try fShader.compile()
+		try vertex.compile()
+		try fragment.compile()
 
 
 		self.attributes = []
@@ -74,8 +76,8 @@ public class DDDShaderProgram: NSObject {
 		super.init()
 
 
-		glAttachShader(program, vShader.shaderReference)
-		glAttachShader(program, fShader.shaderReference)
+		glAttachShader(program, vertex.shaderReference)
+		glAttachShader(program, fragment.shaderReference)
 		glEnable(GLenum(GL_CULL_FACE))
 
 		// those attributes should always be here

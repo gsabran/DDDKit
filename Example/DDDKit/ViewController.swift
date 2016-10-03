@@ -71,9 +71,8 @@ class ViewController: UIViewController {
 		let videoTexture = DDDVideoTexture(player: player)
 
 		do {
-			let vShader = try DDDVertexShader(fromResource: "Shader", withExtention: "vsh")
 			let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-			let program = try DDDShaderProgram(vertex: vShader, fragment: fShader, shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.xyz * 0.5, 1.0);"])
+			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.xyz * 0.5, 1.0);"])
 			videoNode.material.shaderProgram = program
 
 
