@@ -21,11 +21,21 @@ public class DDDShaderProgram: NSObject {
 	private(set) var vertex: DDDVertexShader?
 	private(set) var fragment: DDDFragmentShader?
 	private var program: GLuint
+
 	var programReference: GLuint {
 		return program
 	}
 
 	let shaderModifiers: [DDDShaderEntryPoint: String]?
+
+	public var originalVertexShader: String? {
+		guard let vertex = vertex else { return nil }
+		return String(vertex.originalCode)
+	}
+	public var originalFragmentShader: String? {
+		guard let fragment = fragment else { return nil }
+		return String(fragment.originalCode)
+	}
 
 	private static func addShaderModifier(to shader: DDDShader, modifier: String) {
 		var shaderCode = String(shader.originalCode)
