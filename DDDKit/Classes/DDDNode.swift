@@ -8,6 +8,7 @@
 
 import Foundation
 import GLKit
+import GLMatrix
 
 public enum DDDError: Error {
 	case programNotSetUp

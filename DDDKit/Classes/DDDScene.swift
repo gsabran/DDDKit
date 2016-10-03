@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import GLMatrix
 
 public class DDDScene {
 	private var nodes = Set<DDDNode>()

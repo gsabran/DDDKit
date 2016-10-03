@@ -8,6 +8,7 @@
 
 import UIKit
 import GLKit
+import GLMatrix
 
 public class DDDView: UIView {
 	public var scene: DDDScene?

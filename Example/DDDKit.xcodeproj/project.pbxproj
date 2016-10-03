@@ -18,6 +18,8 @@
 		6F965F8F1DA202720075A36D /* big_buck_bunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F8E1DA202720075A36D /* big_buck_bunny.mp4 */; };
 		6F965F921DA2027B0075A36D /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F901DA2027B0075A36D /* Shader.fsh */; };
 		6F965F931DA2027B0075A36D /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F911DA2027B0075A36D /* Shader.vsh */; };
+		6F965FD01DA220740075A36D /* big_buck_bunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F8E1DA202720075A36D /* big_buck_bunny.mp4 */; };
+		6F965FD11DA220740075A36D /* kauai.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F8C1DA202680075A36D /* kauai.jpg */; };
 		BA549D0F393C77AF0B3F59F7 /* Pods_DDDKit_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF38EB7E9F1B634ADF2BEB2F /* Pods_DDDKit_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -227,10 +229,12 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = GP78T2GNXD;
 						LastSwiftMigration = 0800;
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = GP78T2GNXD;
 						LastSwiftMigration = 0800;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
@@ -274,6 +278,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F965FD01DA220740075A36D /* big_buck_bunny.mp4 in Resources */,
+				6F965FD11DA220740075A36D /* kauai.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,6 +519,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = GP78T2GNXD;
 				INFOPLIST_FILE = DDDKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
@@ -528,6 +535,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = GP78T2GNXD;
 				INFOPLIST_FILE = DDDKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
@@ -541,6 +549,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D1DCDE03F6326145871AC300 /* Pods-DDDKit_Tests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = GP78T2GNXD;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -561,6 +570,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 96739BBF70DB308E60E51CD2 /* Pods-DDDKit_Tests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = GP78T2GNXD;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",

@@ -10,6 +10,7 @@ import UIKit
 import DDDKit
 import GLKit
 import AVFoundation
+import GLMatrix
 
 class ViewController: UIViewController {
 	private let kTracksKey = "tracks"
@@ -26,16 +27,9 @@ class ViewController: UIViewController {
 		return self.player?.rate != 0.0
 	}
 
-	init(nibName: String, bundle: Bundle, url: URL) {
-		video = url
-		super.init(nibName: nibName, bundle: bundle)
-	}
-
-	public required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-	}
-
 	override func viewDidLoad() {
+		let path = Bundle.main.path(forResource: "big_buck_bunny", ofType: "mp4")!
+		video = URL(fileURLWithPath: path)
 		self.setUpVideoPlayback()
 		self.configureGLKView()
 	}
