@@ -25,7 +25,7 @@ public class DDDShaderProgram: NSObject {
 		return program
 	}
 
-	public init(vertex vShader: DDDVertexShader, fragment fShader: DDDFragmentShader) {
+	public init(vertex vShader: DDDVertexShader, fragment fShader: DDDFragmentShader) throws {
 		self.vertex = vShader
 		self.fragment = fShader
 		self.attributes = []
@@ -41,6 +41,8 @@ public class DDDShaderProgram: NSObject {
 		// those attributes should always be here
 		addAttribute(named: "position")
 		addAttribute(named: "texCoord")
+
+		try setUp()
 	}
 
 	deinit {
@@ -75,9 +77,7 @@ public class DDDShaderProgram: NSObject {
 		return cachedIdx
 	}
 
-	private var hasSetUp = false
-	func setUpIfNotAlready() throws {
-		if hasSetUp { return }
+	private func setUp() throws {
 		glLinkProgram(program)
 		var success = GLint()
 		glGetProgramiv(program, GLenum(GL_LINK_STATUS), &success)
@@ -87,8 +87,6 @@ public class DDDShaderProgram: NSObject {
 		}
 		vertex = nil
 		fragment = nil
-
-		hasSetUp = true
 	}
 
 	func use() {

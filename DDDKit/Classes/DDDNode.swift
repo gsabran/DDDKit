@@ -44,7 +44,6 @@ public class DDDNode {
 		guard let geometry = geometry, let program = material.shaderProgram else {
 			throw DDDError.programNotSetUp
 		}
-		try program.setUpIfNotAlready()
 		try geometry.setUpIfNotAlready(for: program)
 
 		try setUpIfNotAlready(context: context)
