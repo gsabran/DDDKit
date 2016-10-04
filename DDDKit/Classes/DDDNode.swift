@@ -40,22 +40,25 @@ public class DDDNode {
 		if hasSetup { return }
 	}
 
-	func preRender(context: EAGLContext) throws {
+	func willRender(context: EAGLContext) throws {
 		guard let geometry = geometry, let program = material.shaderProgram else {
 			throw DDDError.programNotSetUp
 		}
 		try geometry.setUpIfNotAlready(for: program)
 
 		try setUpIfNotAlready(context: context)
+
+		material.properties.forEach { $0.property.willBeUsedAtNextDraw = true }
 	}
 
-	func render(with projection: Mat4) {
+	func render(with projection: Mat4, pool: DDDTexturePool) {
 		guard let geometry = geometry, let program = material.shaderProgram else { return }
 
 		material.set(mat4: GLKMatrix4(projection), for: "u_projection")
 		material.set(mat4: GLKMatrix4(modelView), for: "u_modelview")
 
 		material.properties.forEach { prop in
+			prop.property.prepareToBeUsed(in: pool)
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
 			prop.location = location
 			prop.property.attach(at: location)
@@ -63,6 +66,10 @@ public class DDDNode {
 
 		let vertexBufferOffset = UnsafeRawPointer(bitPattern: 0)
 		glDrawElements(GLenum(GL_TRIANGLES), GLsizei(geometry.indices.count), GLenum(GL_UNSIGNED_SHORT), vertexBufferOffset);
+	}
+
+	func didRender() {
+		material.properties.forEach { $0.property.willBeUsedAtNextDraw = false }
 	}
 }
 

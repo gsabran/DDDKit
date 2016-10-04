@@ -28,16 +28,16 @@ open class DDDScene {
 				}
 			}
 			properties.forEach { prop in
-				prop.loadIfNotLoaded(pool: pool, context: context)
-				prop.prepareToRender()
+				prop.loadIfNotLoaded(context: context)
 			}
 
 			try programs.keys.forEach { program in
 				guard let nodes = programs[program] else { return }
 				program.use()
 				try nodes.forEach { node in
-					try node.preRender(context: context)
-					node.render(with: projection)
+					try node.willRender(context: context)
+					node.render(with: projection, pool: pool)
+					node.didRender()
 				}
 			}
 		} catch {

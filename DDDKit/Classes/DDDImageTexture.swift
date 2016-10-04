@@ -13,29 +13,44 @@ import OpenGLES
 public class DDDImageTexture: DDDProperty {
 	private var image: CGImage
 	private var texture: DDDTexture?
-	private var slot: DDDTextureSlot?
-	private var texturePool: DDDTexturePool?
+	fileprivate weak var slot: DDDTextureSlot?
+	private weak var lastSlotUsed: DDDTextureSlot?
 
 	public init(image: CGImage) {
 		self.image = image
 	}
 
 	deinit {
-		guard let slot = slot, let texturePool = texturePool else { return }
-		texturePool.release(slot: slot)
+		slot?.release()
 	}
 
-	override func dddWorldHasLoaded(pool: DDDTexturePool, context: EAGLContext) {
-		texturePool = pool
-		slot = pool.getNewTextureSlot()
-		guard slot != nil else { return }
+	override func dddWorldHasLoaded(context: EAGLContext) {
 		texture = DDDTexture(image: image)
+	}
+
+	override func prepareToBeUsed(in pool: DDDTexturePool) {
+		if slot == nil {
+			slot = pool.getNewTextureSlot(for: self)
+		}
 	}
 
 	override func attach(at location: GLint) {
 		guard let texture = texture, let slot = slot else { return }
+		if slot === lastSlotUsed { return } // avoid expensive texture binding
+
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)
 		glUniform1i(location, slot.id)
+		lastSlotUsed = slot
+	}
+}
+
+extension DDDImageTexture: SlotDependent {
+	func willLoseSlot() {
+		slot = nil
+	}
+
+	func canReleaseSlot() -> Bool {
+		return !willBeUsedAtNextDraw
 	}
 }

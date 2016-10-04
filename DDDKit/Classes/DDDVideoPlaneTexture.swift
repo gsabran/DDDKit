@@ -10,25 +10,22 @@ import Foundation
 import OpenGLES
 
 class DDDVideoPlaneTexture: DDDProperty {
-	private(set) var slot: DDDTextureSlot?
-	private weak var texturePool: DDDTexturePool?
+	fileprivate(set) weak var slot: DDDTextureSlot?
 	weak var videoTexture: DDDVideoTexture?
 
 	deinit {
-		guard let slot = slot, let texturePool = texturePool else { return }
-		texturePool.release(slot: slot)
+		slot?.release()
 	}
 
-	override func dddWorldHasLoaded(pool: DDDTexturePool, context: EAGLContext) {
-		texturePool = pool
-		slot = pool.getNewTextureSlot()
-		guard slot != nil else { return }
-
+	override func dddWorldHasLoaded(context: EAGLContext) {
 		videoTexture?.dddWorldDidLoad(context: context)
-		super.dddWorldHasLoaded(pool: pool, context: context)
+		super.dddWorldHasLoaded(context: context)
 	}
 
-	override func prepareToRender() {
+	override func prepareToBeUsed(in pool: DDDTexturePool) {
+		if slot == nil {
+			slot = pool.getNewTextureSlot(for: self)
+		}
 		videoTexture?.dddWorldWillRender()
 	}
 
@@ -37,5 +34,15 @@ class DDDVideoPlaneTexture: DDDProperty {
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), textureId)
 		glUniform1i(location, slot.id)
+	}
+}
+
+extension DDDVideoPlaneTexture: SlotDependent {
+	func willLoseSlot() {
+		slot = nil
+	}
+
+	func canReleaseSlot() -> Bool {
+		return !willBeUsedAtNextDraw
 	}
 }

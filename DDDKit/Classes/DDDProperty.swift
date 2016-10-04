@@ -11,20 +11,21 @@ import OpenGLES
 
 public class DDDProperty {
 	fileprivate var id: Int
+	var willBeUsedAtNextDraw = false
 
 	init() {
 		self.id = Int(arc4random())
 	}
 
 	private var hasLoaded = false
-	final func loadIfNotLoaded(pool: DDDTexturePool, context: EAGLContext) {
+	final func loadIfNotLoaded(context: EAGLContext) {
 		if hasLoaded { return }
-		dddWorldHasLoaded(pool: pool, context: context)
+		dddWorldHasLoaded(context: context)
 		hasLoaded = true
 	}
-	func dddWorldHasLoaded(pool: DDDTexturePool, context: EAGLContext) {}
+	func dddWorldHasLoaded(context: EAGLContext) {}
 
-	func prepareToRender() {}
+	func prepareToBeUsed(in pool: DDDTexturePool) {}
 
 	func attach(at location: GLint) {}
 }

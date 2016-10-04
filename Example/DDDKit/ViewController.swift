@@ -98,11 +98,13 @@ class ViewController: UIViewController {
 		self.player!.seek(to: kCMTimeZero)
 		self.player!.play()
 	}
+	var previousRenderingAt: Double = 0
 }
 
 extension ViewController: DDDSceneDelegate {
 	func willRender() {
 		let d = Date()
+		let second = d.timeIntervalSince1970.truncatingRemainder(dividingBy: 1)
 		let dt1 = Float((d.timeIntervalSince1970 / 3.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 		let dt2 = Float((d.timeIntervalSince1970 / 7.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 		let dt3 = Float((d.timeIntervalSince1970 / 10.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
@@ -113,16 +115,16 @@ extension ViewController: DDDSceneDelegate {
 		videoNode.rotateZ(by: dt3)
 		videoNode.position = Vec3(v: (0, 0, -3))
 
-		let material = videoNode.material
+		if second < previousRenderingAt {
+			let material = videoNode.material
 
-		guard let currentProgram = material.shaderProgram else { return }
+			guard let currentProgram = material.shaderProgram else { return }
 
-		let vertexCode = currentProgram.originalVertexShader
-		let fragmentCode = currentProgram.originalFragmentShader
+			let vertexCode = currentProgram.originalVertexShader
+			let fragmentCode = currentProgram.originalFragmentShader
 
-		let vShader = DDDVertexShader(from: vertexCode)
-		let fShader = DDDFragmentShader(from: fragmentCode)
-		DispatchQueue.main.async {
+			let vShader = DDDVertexShader(from: vertexCode)
+			let fShader = DDDFragmentShader(from: fragmentCode)
 			do {
 				/*let program = try DDDShaderProgram(
 				vertex: vShader,
@@ -138,5 +140,6 @@ extension ViewController: DDDSceneDelegate {
 				print("error!\(error)")
 			}
 		}
+		previousRenderingAt = second
 	}
 }
