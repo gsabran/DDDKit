@@ -107,18 +107,48 @@ extension ViewController: DDDSceneDelegate {
 		let dt2 = Float((d.timeIntervalSince1970 / 7.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 		let dt3 = Float((d.timeIntervalSince1970 / 10.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 
-		let red = GLKVector3(v: (1, 0, 0))
-		let green = GLKVector3(v: (0, 1, 0))
-
 		videoNode.rotation = Quat.init(x: 0, y: 0, z: 0, w: 1)
 		videoNode.rotateX(by: dt1)
 		videoNode.rotateY(by: dt2)
 		videoNode.rotateZ(by: dt3)
 		videoNode.position = Vec3(v: (0, 0, -3))
-		if dt1 > Float.pi {
-			videoNode.material.set(vec3: red, for: "color")
-		} else {
-			videoNode.material.set(vec3: green, for: "color")
+
+		let material = videoNode.material
+
+		guard let currentProgram = material.shaderProgram else { return }
+
+		let vertexCode = currentProgram.originalVertexShader
+		let fragmentCode = currentProgram.originalFragmentShader
+
+		let vShader = DDDVertexShader(from: vertexCode)
+		let fShader = DDDFragmentShader(from: fragmentCode)
+		DispatchQueue.main.async {
+			do {
+				/*let program = try DDDShaderProgram(
+				vertex: vShader,
+				fragment: fShader,
+				shaderModifiers: [
+				DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.b, gl_FragColor.r, gl_FragColor.g, 1.0);",
+				]
+				)*/
+
+				let program = try DDDShaderProgram(
+					vertex: vShader,
+					fragment: fShader,
+					shaderModifiers: [
+						DDDShaderEntryPoint.fragment: "uniform sampler2D u_image;\n" +
+							"#pragma body \n" +
+						"gl_FragColor.r = texture2D(u_image, v_textureCoordinate).r;"
+					]
+				)
+				material.shaderProgram = nil
+				material.shaderProgram = program
+
+				let image = UIImage(contentsOfFile: Bundle.main.path(forResource: "kauai", ofType: "jpg")!)!
+				material.set(property: DDDImageTexture(image: image.cgImage!), for: "u_image")
+			} catch {
+				print("error!\(error)")
+			}
 		}
 	}
 }

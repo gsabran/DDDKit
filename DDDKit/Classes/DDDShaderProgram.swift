@@ -28,14 +28,8 @@ public class DDDShaderProgram: NSObject {
 
 	let shaderModifiers: [DDDShaderEntryPoint: String]?
 
-	public var originalVertexShader: String? {
-		guard let vertex = vertex else { return nil }
-		return String(vertex.originalCode)
-	}
-	public var originalFragmentShader: String? {
-		guard let fragment = fragment else { return nil }
-		return String(fragment.originalCode)
-	}
+	public private(set) var originalVertexShader: String
+	public private(set) var originalFragmentShader: String
 
 	private static func addShaderModifier(to shader: DDDShader, modifier: String) {
 		var shaderCode = String(shader.originalCode)
@@ -67,6 +61,9 @@ public class DDDShaderProgram: NSObject {
 		self.vertex = vertex
 		let fragment = fShader ?? DDDDefaultFragmentShader()
 		self.fragment = fragment
+
+		self.originalVertexShader = String(vertex.originalCode)
+		self.originalFragmentShader = String(fragment.originalCode)
 
 		if let modifiers = shaderModifiers {
 			if let vModifier = modifiers[.geometry] {
