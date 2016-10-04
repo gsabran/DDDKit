@@ -19,7 +19,7 @@ class DDDTexturePool {
 		availableSlots = [Int]()
 		slots = [DDDTextureSlot]()
 
-		(0..<8).reversed().forEach { i in
+		(0..<Int(maxNumberOfTextures)).reversed().forEach { i in
 			slots.append(DDDTextureSlot(index: i, pool: self))
 			availableSlots.append(i)
 		}

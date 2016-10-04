@@ -27,7 +27,7 @@ open class DDDView: UIView {
 
 	public var scene: DDDScene?
 	public weak var delegate: DDDSceneDelegate?
-	fileprivate let texturesPool = DDDTexturePool()
+	fileprivate var texturesPool: DDDTexturePool?
 
 	//fileprivate var viewController: DDDViewController!
 
@@ -73,6 +73,9 @@ open class DDDView: UIView {
 		glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_COLOR_ATTACHMENT0),
 		                          GLenum(GL_RENDERBUFFER), colorRenderBuffer)
 		glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_DEPTH_ATTACHMENT), GLenum(GL_RENDERBUFFER), depthRenderBuffer);
+
+		// texture pool
+		texturesPool = DDDTexturePool()
 	}
 
 	func render(displayLink: CADisplayLink) {
@@ -85,7 +88,7 @@ open class DDDView: UIView {
 	}
 
 	func shouldRender() {
-		guard let scene = scene else { return }
+		guard let scene = scene, let texturesPool = texturesPool else { return }
 
 		delegate?.willRender()
 
