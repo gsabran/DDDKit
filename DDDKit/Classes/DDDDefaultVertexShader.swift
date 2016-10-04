@@ -17,8 +17,7 @@ class DDDDefaultVertexShader: DDDVertexShader {
 			"// header modifier here\n" +
 			"\n" +
 			"void main() {\n" +
-			"v_textureCoordinate.x = texCoord.y;\n" +
-			"v_textureCoordinate.y = texCoord.x;\n" +
+			"v_textureCoordinate = texCoord;\n" +
 			"\n" +
 			"gl_Position = u_projection * u_modelview * position;\n" +
 			"// body modifier here\n" +

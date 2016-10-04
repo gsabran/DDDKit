@@ -57,16 +57,6 @@ class ViewController: UIViewController {
 				}
 			}
 		})
-		NotificationCenter.default
-			.addObserver(player,
-			             selector: #selector(videoDidEnd),
-			             name: .AVPlayerItemDidPlayToEndTime,
-			             object: nil)
-	}
-
-	@objc private func videoDidEnd(notification: Foundation.Notification) {
-		player.seek(to: kCMTimeZero)
-		player.play()
 	}
 
 
@@ -79,21 +69,14 @@ class ViewController: UIViewController {
 		dddView.scene = DDDScene()
 		let videoNode = DDDNode()
 		videoNode.geometry = DDDSphere(radius: 1.0, rings: 40, sectors: 40, orientation: .inward)
-		let videoTexture = DDDVideoTexture(player: player)
+
 
 		do {
 			let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.xyz * 0.5, 1.0);"])
+			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(v_textureCoordinate, 0.0, 1.0);"])
 			videoNode.material.shaderProgram = program
 
-
-
-			let path = Bundle.main.path(forResource: "kauai", ofType: "jpg")!
-			let image = UIImage(contentsOfFile: path)!.cgImage!
-			let texture = DDDImageTexture(image: image)
-			videoNode.material.set(property: texture, for: "image")
-
-
+			let videoTexture = DDDVideoTexture(player: player)
 			videoNode.material.set(property: videoTexture, for: "SamplerY", and: "SamplerUV")
 
 		} catch {
@@ -101,6 +84,7 @@ class ViewController: UIViewController {
 		}
 
 		dddView.scene?.add(node: videoNode)
+		videoNode.position = Vec3(v: (0, 0, -3))
 		self.videoNode = videoNode
 	}
 
@@ -114,8 +98,9 @@ class ViewController: UIViewController {
 
 extension ViewController: DDDSceneDelegate {
 	func willRender() {
+		
+		/*
 		let d = Date()
-		let second = d.timeIntervalSince1970.truncatingRemainder(dividingBy: 1)
 		let dt1 = Float((d.timeIntervalSince1970 / 3.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 		let dt2 = Float((d.timeIntervalSince1970 / 7.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 		let dt3 = Float((d.timeIntervalSince1970 / 10.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
@@ -123,34 +108,6 @@ extension ViewController: DDDSceneDelegate {
 		videoNode.rotation = Quat.init(x: 0, y: 0, z: 0, w: 1)
 		videoNode.rotateX(by: dt1)
 		videoNode.rotateY(by: dt2)
-		videoNode.rotateZ(by: dt3)
-		videoNode.position = Vec3(v: (0, 0, -3))
-
-		if second < previousRenderingAt {
-			let material = videoNode.material
-
-			guard let currentProgram = material.shaderProgram else { return }
-
-			let vertexCode = currentProgram.originalVertexShader
-			let fragmentCode = currentProgram.originalFragmentShader
-
-			let vShader = DDDVertexShader(from: vertexCode)
-			let fShader = DDDFragmentShader(from: fragmentCode)
-			do {
-				/*let program = try DDDShaderProgram(
-				vertex: vShader,
-				fragment: fShader,
-				shaderModifiers: [
-				DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.b, gl_FragColor.r, gl_FragColor.g, 1.0);",
-				]
-				)*/
-
-				let image = UIImage(contentsOfFile: Bundle.main.path(forResource: "kauai", ofType: "jpg")!)!
-				material.set(property: DDDImageTexture(image: image.cgImage!), for: "u_image")
-			} catch {
-				print("error!\(error)")
-			}
-		}
-		previousRenderingAt = second
+		videoNode.rotateZ(by: dt3)*/
 	}
 }

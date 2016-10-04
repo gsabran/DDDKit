@@ -65,7 +65,11 @@ public class DDDVideoTexture {
 
 		let time = videoItem.currentTime()
 		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
-		return videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
+		let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
+		if buffer == nil {
+			print("could not get video buffer")
+		}
+		return buffer
 	}
 
 	private func refreshTexture() {
