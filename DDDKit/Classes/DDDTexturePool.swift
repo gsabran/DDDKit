@@ -10,7 +10,8 @@ import Foundation
 import OpenGLES
 
 class DDDTexturePool {
-	// there's only 32 textures avaialble
+	private var maxNumberOfTextures: GLint?
+	// in any case, we wont use more that the 32 rpedefined textures
 	private var availableTextureSlots = [
 		DDDTextureSlot(id: GLint(31), glId: GLenum(GL_TEXTURE31), description: "texture\(31)"),
 		DDDTextureSlot(id: GLint(30), glId: GLenum(GL_TEXTURE30), description: "texture\(30)"),
@@ -47,6 +48,14 @@ class DDDTexturePool {
 		]
 
 	func getNewTextureSlot() -> DDDTextureSlot? {
+		if maxNumberOfTextures == nil {
+			var n = GLint()
+			glGetIntegerv(GLenum(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS), &n)
+			maxNumberOfTextures = n
+		}
+		guard let maxNumberOfTextures = maxNumberOfTextures else { return nil }
+
+		if availableTextureSlots.count < 32 - maxNumberOfTextures { return nil }
 		return availableTextureSlots.popLast()
 	}
 
