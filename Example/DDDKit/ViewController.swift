@@ -132,18 +132,6 @@ extension ViewController: DDDSceneDelegate {
 				]
 				)*/
 
-				let program = try DDDShaderProgram(
-					vertex: vShader,
-					fragment: fShader,
-					shaderModifiers: [
-						DDDShaderEntryPoint.fragment: "uniform sampler2D u_image;\n" +
-							"#pragma body \n" +
-						"gl_FragColor.r = texture2D(u_image, v_textureCoordinate).r;"
-					]
-				)
-				material.shaderProgram = nil
-				material.shaderProgram = program
-
 				let image = UIImage(contentsOfFile: Bundle.main.path(forResource: "kauai", ofType: "jpg")!)!
 				material.set(property: DDDImageTexture(image: image.cgImage!), for: "u_image")
 			} catch {

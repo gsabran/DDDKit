@@ -51,7 +51,7 @@ class DDDTexturePool {
 	}
 
 	func release(slot: DDDTextureSlot) {
-		availableTextureSlots.insert(slot, at: 0)
+		availableTextureSlots.append(slot)
 	}
 }
 
