@@ -23,13 +23,12 @@ open class DDDView: UIView {
 	fileprivate var colorRenderBuffer = GLuint()
 	fileprivate var depthRenderBuffer = GLuint()
 
-
-
+	private var wasPaused = false
+	public var isPaused = false
+	public var resumeOnDidBecomeActive = true
 	public var scene: DDDScene?
 	public weak var delegate: DDDSceneDelegate?
 	fileprivate var texturesPool: DDDTexturePool?
-
-	//fileprivate var viewController: DDDViewController!
 
 	public convenience init() {
 		self.init(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
@@ -76,9 +75,28 @@ open class DDDView: UIView {
 
 		// texture pool
 		texturesPool = DDDTexturePool()
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(applicationWillResignActive),
+			name: NSNotification.Name.UIApplicationWillResignActive,
+			object: nil
+		)
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(applicationDidBecomeActive),
+			name: NSNotification.Name.UIApplicationDidBecomeActive,
+			object: nil
+		)
 	}
 
+	deinit {
+		NotificationCenter.default.removeObserver(self)
+	}
+
+
 	func render(displayLink: CADisplayLink) {
+		if isPaused { return }
 		glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
@@ -102,6 +120,15 @@ open class DDDView: UIView {
 	}
 	
 	public func willAppear() {
-		//viewController.start()
+		isPaused = isPaused || resumeOnDidBecomeActive
+	}
+
+	@objc private func applicationWillResignActive() {
+		wasPaused = isPaused
+		isPaused = true
+	}
+
+	@objc private func applicationDidBecomeActive() {
+		isPaused = !resumeOnDidBecomeActive || wasPaused
 	}
 }

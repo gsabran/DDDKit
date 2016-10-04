@@ -57,7 +57,18 @@ class ViewController: UIViewController {
 				}
 			}
 		})
+		NotificationCenter.default
+			.addObserver(player,
+			             selector: #selector(videoDidEnd),
+			             name: .AVPlayerItemDidPlayToEndTime,
+			             object: nil)
 	}
+
+	@objc private func videoDidEnd(notification: Foundation.Notification) {
+		player.seek(to: kCMTimeZero)
+		player.play()
+	}
+
 
 	fileprivate var videoNode: DDDNode!
 	private func configureGLKView() {
