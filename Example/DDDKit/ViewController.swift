@@ -68,7 +68,7 @@ class ViewController: UIViewController {
 
 		dddView.scene = DDDScene()
 		let videoNode = DDDNode()
-		videoNode.geometry = DDDSphere(radius: 1.0, rings: 40, sectors: 40, orientation: .inward)
+		videoNode.geometry = DDDGeometry.Sphere(radius: 1.0, rings: 40, sectors: 40, orientation: .inward)
 
 
 		do {

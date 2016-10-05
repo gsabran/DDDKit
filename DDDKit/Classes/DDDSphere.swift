@@ -8,13 +8,13 @@
 
 import Foundation
 
-public class DDDSphere: DDDGeometry {
-	public init(
+extension DDDGeometry {
+	public static func Sphere(
 		radius: GLfloat = 1.0,
 		rings: Int = 20,
 		sectors: Int = 20,
 		orientation: DDDOrientation = .outward
-		) {
+		) -> DDDGeometry {
 		let rStep = 1.0 / Float(rings - 1)
 		let sStep = 1.0 / Float(sectors - 1)
 
@@ -71,7 +71,7 @@ public class DDDSphere: DDDGeometry {
 			}
 		}
 
-		super.init(
+		return DDDGeometry(
 			indices: indices,
 			vertices: vertices,
 			texCoords: texCoords
