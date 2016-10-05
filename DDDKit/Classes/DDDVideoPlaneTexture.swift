@@ -25,6 +25,7 @@ class DDDVideoPlaneTexture: DDDProperty {
 	override func prepareToBeUsed(in pool: DDDTexturePool) {
 		if slot == nil {
 			slot = pool.getNewTextureSlot(for: self)
+			print("setting video pane slot to \(slot!.description)")
 		}
 		videoTexture?.dddWorldWillRender()
 	}

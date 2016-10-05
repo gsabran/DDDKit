@@ -60,6 +60,9 @@ public class DDDNode {
 		material.properties.forEach { prop in
 			prop.property.prepareToBeUsed(in: pool)
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
+			if location == -1 {
+				print("could not attach property for \(prop.locationName)")
+			}
 			prop.location = location
 			prop.property.attach(at: location)
 		}

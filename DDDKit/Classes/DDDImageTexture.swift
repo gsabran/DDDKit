@@ -15,6 +15,7 @@ public class DDDImageTexture: DDDProperty {
 	private var texture: DDDTexture?
 	fileprivate weak var slot: DDDTextureSlot?
 	private weak var lastSlotUsed: DDDTextureSlot?
+	private var locationsAlreadySet = Set<GLint>()
 
 	public init(image: CGImage) {
 		self.image = image
@@ -36,12 +37,15 @@ public class DDDImageTexture: DDDProperty {
 
 	override func attach(at location: GLint) {
 		guard let texture = texture, let slot = slot else { return }
-		if slot === lastSlotUsed { return } // avoid expensive texture binding
+		if slot === lastSlotUsed && locationsAlreadySet.contains(location) { return } // avoid expensive texture binding
 
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)
 		glUniform1i(location, slot.id)
+
 		lastSlotUsed = slot
+		locationsAlreadySet.removeAll()
+		locationsAlreadySet.insert(location)
 	}
 }
 
