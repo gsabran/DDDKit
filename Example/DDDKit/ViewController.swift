@@ -12,7 +12,7 @@ import GLKit
 import AVFoundation
 import GLMatrix
 
-class ViewController: UIViewController {
+class ViewController: DDDViewController {
 	private let kTracksKey = "tracks"
 	private let kPlayableKey = "playable"
 	private let kRateKey = "rate"
@@ -28,6 +28,7 @@ class ViewController: UIViewController {
 	}
 
 	override func viewDidLoad() {
+		super.viewDidLoad()
 		let path = Bundle.main.path(forResource: "big_buck_bunny", ofType: "mp4")!
 		video = URL(fileURLWithPath: path)
 		self.setUpVideoPlayback()
@@ -62,11 +63,9 @@ class ViewController: UIViewController {
 
 	fileprivate var videoNode: DDDNode!
 	private func configureGLKView() {
-		let dddView = DDDView(frame: self.view.bounds)
-		dddView.delegate = self
-		self.view.insertSubview(dddView, at: 0)
+		self.delegate = self
 
-		dddView.scene = DDDScene()
+		self.scene = DDDScene()
 		let videoNode = DDDNode()
 		videoNode.geometry = DDDGeometry.Sphere(radius: 1.0, rings: 40, sectors: 40, orientation: .inward)
 
@@ -83,7 +82,7 @@ class ViewController: UIViewController {
 			print("could not set shaders: \(error)")
 		}
 
-		dddView.scene?.add(node: videoNode)
+		scene?.add(node: videoNode)
 		videoNode.position = Vec3(v: (0, 0, -3))
 		self.videoNode = videoNode
 	}
@@ -97,7 +96,7 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: DDDSceneDelegate {
-	func willRender() {
+	func willRender(sender: DDDViewController) {
 		
 		/*
 		let d = Date()

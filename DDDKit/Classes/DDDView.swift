@@ -10,7 +10,7 @@ import UIKit
 import GLKit
 import GLMatrix
 
-public class DDDViewController: UIViewController {
+open class DDDViewController: UIViewController {
 	static var count = 0
 	private weak var sceneView: DDDView?
 
@@ -28,7 +28,7 @@ public class DDDViewController: UIViewController {
 	fileprivate var texturesPool: DDDTexturePool?
 	private var displayLink: CADisplayLink?
 
-	public override func viewDidLoad() {
+	open override func viewDidLoad() {
 		super.viewDidLoad()
 		DDDViewController.count += 1
 		print("DDDViewController.count \(DDDViewController.count)")
@@ -49,17 +49,17 @@ public class DDDViewController: UIViewController {
 		initializeGL()
 	}
 
-	public override func viewDidAppear(_ animated: Bool) {
+	open override func viewDidAppear(_ animated: Bool) {
 		hasAppeared()
 		super.viewDidAppear(animated)
 	}
 
-	public override func viewWillDisappear(_ animated: Bool) {
+	open override func viewWillDisappear(_ animated: Bool) {
 		prepareToDisappear()
 		super.viewWillDisappear(animated)
 	}
 
-	public override func willMove(toParentViewController parent: UIViewController?) {
+	open override func willMove(toParentViewController parent: UIViewController?) {
 		if parent == nil {
 			displayLink?.invalidate()
 			displayLink = nil
@@ -129,10 +129,10 @@ public class DDDViewController: UIViewController {
 		context.presentRenderbuffer(Int(GL_RENDERBUFFER))
 	}
 
-	func shouldRender() {
+	private func shouldRender() {
 		guard let scene = scene, let texturesPool = texturesPool else { return }
 
-		delegate?.willRender()
+		delegate?.willRender(sender: self)
 
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 

@@ -50,5 +50,5 @@ open class DDDScene {
 }
 
 public protocol DDDSceneDelegate: class {
-	func willRender()
+	func willRender(sender: DDDViewController)
 }
