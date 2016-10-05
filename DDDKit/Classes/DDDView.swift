@@ -10,14 +10,9 @@ import UIKit
 import GLKit
 import GLMatrix
 
-open class DDDView: UIView {
-	private static var instancesCount = 0
-
-	override class open var layerClass: AnyClass {
-		get {
-			return CAEAGLLayer.self
-		}
-	}
+public class DDDViewController: UIViewController {
+	static var count = 0
+	private weak var sceneView: DDDView?
 
 	fileprivate var eagllayer: CAEAGLLayer!
 	fileprivate var context: EAGLContext!
@@ -32,56 +27,54 @@ open class DDDView: UIView {
 	public weak var delegate: DDDSceneDelegate?
 	fileprivate var texturesPool: DDDTexturePool?
 	private var displayLink: CADisplayLink?
-	private var renderingFrame: CGRect?
 
-	public convenience init() {
-		self.init(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
-	}
+	public override func viewDidLoad() {
+		super.viewDidLoad()
+		DDDViewController.count += 1
+		print("DDDViewController.count \(DDDViewController.count)")
 
-	required public init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-
-	override open func layoutSubviews() {
-		self.initializeIfNotDone()
-		super.layoutSubviews()
-	}
-
-	override open func removeFromSuperview() {
-		displayLink?.invalidate()
-		displayLink = nil
-		super.removeFromSuperview()
-	}
-
-	public override init(frame: CGRect) {
-		DDDView.instancesCount += 1
-		if DDDView.instancesCount > 1 {
-			fatalError("only one DDDView instance at a time is currently supported")
-		}
-		super.init(frame: frame)
+		let sceneView = DDDView()
+		sceneView.frame = view.frame
+		view.insertSubview(sceneView, at: 0)
+		self.sceneView = sceneView
 
 		let api = EAGLRenderingAPI.openGLES2
 		context = EAGLContext(api: api)
 		if !EAGLContext.setCurrent(context) {
 			print("could not set eagl context")
 		}
-		eagllayer = layer as! CAEAGLLayer
+		eagllayer = sceneView.layer as! CAEAGLLayer
 		eagllayer.isOpaque = true
+
+		initializeGL()
 	}
 
-	private var hasInitialized = false
-	private func initializeIfNotDone() {
-		renderingFrame = self.bounds
-		guard let renderingFrame = renderingFrame else { return }
-		if hasInitialized { return }
-		hasInitialized = true
+	public override func viewDidAppear(_ animated: Bool) {
+		hasAppeared()
+		super.viewDidAppear(animated)
+	}
+
+	public override func viewWillDisappear(_ animated: Bool) {
+		prepareToDisappear()
+		super.viewWillDisappear(animated)
+	}
+
+	public override func willMove(toParentViewController parent: UIViewController?) {
+		if parent == nil {
+			displayLink?.invalidate()
+			displayLink = nil
+		}
+		super.willMove(toParentViewController: parent)
+	}
+
+	private func initializeGL() {
 		// depth buffer
 		glGenRenderbuffers(1, &depthRenderBuffer);
 		glBindRenderbuffer(GLenum(GL_RENDERBUFFER), depthRenderBuffer);
-		glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT16), GLsizei(renderingFrame.size.width), GLsizei(renderingFrame.size.height))
+		glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT16), GLsizei(view.frame.size.width), GLsizei(view.frame.size.height))
 
 		// display link
-		let displayLink = CADisplayLink(target: self, selector: #selector(DDDView.render(displayLink:)))
+		let displayLink = CADisplayLink(target: self, selector: #selector(DDDViewController.render(displayLink:)))
 		displayLink.add(to: RunLoop.current, forMode: RunLoopMode(rawValue: RunLoopMode.defaultRunLoopMode.rawValue))
 		self.displayLink = displayLink
 
@@ -118,44 +111,63 @@ open class DDDView: UIView {
 
 	deinit {
 		NotificationCenter.default.removeObserver(self)
-		DDDView.instancesCount -= 1
+		DDDViewController.count -= 1
+		print("deinit DDDViewController")
 	}
 
 
 	func render(displayLink: CADisplayLink) {
 		if isPaused { return }
-		guard let renderingFrame = renderingFrame else { return }
+		if EAGLContext.current() !== context {
+			EAGLContext.setCurrent(context)
+		}
 		glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
-		glViewport(0, 0, GLsizei(renderingFrame.size.width), GLsizei(renderingFrame.size.height))
+		glViewport(0, 0, GLsizei(view.frame.size.width), GLsizei(view.frame.size.height))
 		shouldRender()
 		context.presentRenderbuffer(Int(GL_RENDERBUFFER))
 	}
 
 	func shouldRender() {
-		guard let scene = scene, let texturesPool = texturesPool, let renderingFrame = renderingFrame else { return }
+		guard let scene = scene, let texturesPool = texturesPool else { return }
 
 		delegate?.willRender()
 
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 
-		let aspect = Float(fabs(renderingFrame.width / renderingFrame.height))
+		let aspect = Float(fabs(view.frame.width / view.frame.height))
 		let overture = Float(65.0)
 		let projection = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(overture), aspect, 0.1, 400.0)
 		scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool)
 	}
 
-	public func willAppear() {
-		isPaused = isPaused || !resumeOnDidBecomeActive
+	@objc private func applicationWillResignActive() {
+		prepareToDisappear()
 	}
 
-	@objc private func applicationWillResignActive() {
+	@objc private func applicationDidBecomeActive() {
+		hasAppeared()
+	}
+
+	private func prepareToDisappear() {
 		wasPaused = isPaused
 		isPaused = true
 	}
 
-	@objc private func applicationDidBecomeActive() {
+	private func hasAppeared() {
 		isPaused = wasPaused || !resumeOnDidBecomeActive
+	}
+}
+
+class DDDView: UIView {
+	override class open var layerClass: AnyClass {
+		get {
+			return CAEAGLLayer.self
+		}
+	}
+
+	deinit {
+		print("deinit DDDView")
 	}
 }

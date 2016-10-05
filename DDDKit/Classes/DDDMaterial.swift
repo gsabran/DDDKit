@@ -26,7 +26,7 @@ public class DDDMaterial {
 
 
 	public func set(property: DDDProperty, for key: String) {
-		remove(for: key)
+		removeProperty(for: key)
 		properties.insert(DDDProgramProperty(property: property, named: key))
 	}
 
@@ -55,7 +55,7 @@ public class DDDMaterial {
 
 
 
-	private func remove(for key: String) {
+	public func removeProperty(for key: String) {
 		var toBeRemoved = [DDDProgramProperty]()
 		properties.forEach { prop in
 			if prop.locationName == key {
