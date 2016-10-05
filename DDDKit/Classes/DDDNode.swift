@@ -62,9 +62,10 @@ public class DDDNode {
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
 			if location == -1 {
 				print("could not attach property for \(prop.locationName)")
+			} else {
+				prop.location = location
+				prop.property.attach(at: location)
 			}
-			prop.location = location
-			prop.property.attach(at: location)
 		}
 
 		let vertexBufferOffset = UnsafeRawPointer(bitPattern: 0)
