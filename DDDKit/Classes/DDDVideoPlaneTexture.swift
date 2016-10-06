@@ -12,9 +12,14 @@ import OpenGLES
 class DDDVideoPlaneTexture: DDDProperty {
 	fileprivate(set) weak var slot: DDDTextureSlot?
 	weak var videoTexture: DDDVideoTexture?
+	var hasReceivedData = false
 
 	deinit {
 		slot?.release()
+	}
+
+	override func isReadyToBeUsed() -> Bool {
+		return hasReceivedData
 	}
 
 	override func dddWorldHasLoaded(context: EAGLContext) {

@@ -68,6 +68,14 @@ public class DDDNode {
 			}
 		}
 
+		var shouldDraw = true
+
+		material.properties.forEach { prop in
+			if !prop.property.isReadyToBeUsed() {
+				shouldDraw = false
+			}
+		}
+		guard shouldDraw else { return }
 		let vertexBufferOffset = UnsafeRawPointer(bitPattern: 0)
 		glDrawElements(GLenum(GL_TRIANGLES), GLsizei(geometry.indices.count), GLenum(GL_UNSIGNED_SHORT), vertexBufferOffset);
 	}

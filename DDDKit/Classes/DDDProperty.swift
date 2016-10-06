@@ -28,6 +28,8 @@ public class DDDProperty {
 	func prepareToBeUsed(in pool: DDDTexturePool) {}
 
 	func attach(at location: GLint) {}
+
+	func isReadyToBeUsed() -> Bool { return true }
 }
 
 extension DDDProperty: Equatable {
