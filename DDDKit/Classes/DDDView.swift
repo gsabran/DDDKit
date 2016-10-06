@@ -10,6 +10,11 @@ import UIKit
 import GLKit
 import GLMatrix
 
+/**
+A UIViewController that manages a 3D scene
+
+- Important: the controller must be loaded before calling any openGL related function
+*/
 open class DDDViewController: UIViewController {
 	static var count = 0
 	private weak var sceneView: DDDView?
@@ -21,6 +26,9 @@ open class DDDViewController: UIViewController {
 	fileprivate var depthRenderBuffer = GLuint()
 
 	private var wasPaused = false
+	/**
+	wether the rendering computation should be skipped
+	*/
 	public var isPaused = false
 	public var resumeOnDidBecomeActive = true
 	public var scene: DDDScene?
@@ -121,7 +129,7 @@ open class DDDViewController: UIViewController {
 		if EAGLContext.current() !== context {
 			EAGLContext.setCurrent(context)
 		}
-		glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0)
+		glClearColor(0, 0, 0, 1.0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
 		glViewport(0, 0, GLsizei(view.frame.size.width), GLsizei(view.frame.size.height))
