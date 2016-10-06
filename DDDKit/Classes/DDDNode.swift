@@ -54,9 +54,6 @@ public class DDDNode {
 	func render(with projection: Mat4, pool: DDDTexturePool) {
 		guard let geometry = geometry, let program = material.shaderProgram else { return }
 
-		material.set(mat4: GLKMatrix4(projection), for: "u_projection")
-		material.set(mat4: GLKMatrix4(modelView), for: "u_modelview")
-
 		material.properties.forEach { prop in
 			prop.property.prepareToBeUsed(in: pool)
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
@@ -76,6 +73,9 @@ public class DDDNode {
 			}
 		}
 		guard shouldDraw else { return }
+
+		material.set(mat4: GLKMatrix4(projection), for: "u_projection")
+		material.set(mat4: GLKMatrix4(modelView), for: "u_modelview")
 		let vertexBufferOffset = UnsafeRawPointer(bitPattern: 0)
 		glDrawElements(GLenum(GL_TRIANGLES), GLsizei(geometry.indices.count), GLenum(GL_UNSIGNED_SHORT), vertexBufferOffset);
 	}

@@ -25,6 +25,8 @@ class ViewController: DDDViewController {
 
 	private var isPlaying: Bool {
 		return self.player?.rate != 0.0
+		let vc = UIViewController()
+		
 	}
 
 	override func viewDidLoad() {

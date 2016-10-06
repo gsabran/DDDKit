@@ -27,12 +27,12 @@ class DDDVideoPlaneTexture: DDDProperty {
 		super.dddWorldHasLoaded(context: context)
 	}
 
-	override func prepareToBeUsed(in pool: DDDTexturePool) {
+	override func prepareToBeUsed(in pool: DDDTexturePool)  {
 		if slot == nil {
 			slot = pool.getNewTextureSlot(for: self)
 			print("setting video pane slot to \(slot!.description)")
 		}
-		videoTexture?.dddWorldWillRender()
+		videoTexture?.prepareToBeUsed()
 	}
 
 	override func attach(at location: GLint) {

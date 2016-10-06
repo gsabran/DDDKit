@@ -21,6 +21,8 @@ public class DDDVideoTexture {
 	private let player: AVPlayer
 	private var videoItem: AVPlayerItem?
 	private var context: EAGLContext?
+	private var hasRetrivedBufferForCurrentVideoItem = false
+	public weak var delegate: DDDVideoTextureDelegate?
 
 	public init(player: AVPlayer) {
 		self.player = player
@@ -44,8 +46,16 @@ public class DDDVideoTexture {
 		cleanUpTextures()
 	}
 
-	func dddWorldWillRender() {
+	func prepareToBeUsed() {
+		guard let videoItem = player.currentItem else { return }
+		if self.videoItem !== videoItem {
+			hasRetrivedBufferForCurrentVideoItem = false
+		}
+		let hadRetrivedBufferForCurrentVideoItem = hasRetrivedBufferForCurrentVideoItem
 		refreshTexture()
+		if hasRetrivedBufferForCurrentVideoItem && !hadRetrivedBufferForCurrentVideoItem {
+			delegate?.videoItemWillRenderForFirstTimeAtNextFrame()
+		}
 	}
 
 	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
@@ -159,6 +169,7 @@ public class DDDVideoTexture {
 		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GLfloat(GL_CLAMP_TO_EDGE))
 		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GLfloat(GL_CLAMP_TO_EDGE))
 		chromaPlane.hasReceivedData = true
+		hasRetrivedBufferForCurrentVideoItem = true
 	}
 
 	private func cleanUpTextures() {
@@ -203,4 +214,11 @@ extension DDDVideoTexture: Hashable {
 	public var hashValue: Int {
 		return id
 	}
+}
+
+public protocol DDDVideoTextureDelegate: class {
+	/**
+	when a video item has received data and can be drawn at the next rendering pass
+	*/
+	func videoItemWillRenderForFirstTimeAtNextFrame()
 }
