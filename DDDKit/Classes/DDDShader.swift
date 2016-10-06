@@ -58,6 +58,7 @@ public class DDDShader {
 		shader.pointee = glCreateShader(GLenum(glType))
 		if shader.pointee == 0 {
 			NSLog("OpenGLView compileShader():  glCreateShader failed")
+			NSLog("Shader is:\n\(String(code))")
 			throw DDDError.shaderFailedToCompile
 		}
 
