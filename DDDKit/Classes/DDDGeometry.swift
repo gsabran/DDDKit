@@ -30,7 +30,13 @@ public class DDDGeometry {
 	) {
 		self.indices = indices
 		self.vertices = vertices
-		self.texCoords = texCoords
+		if let coords = texCoords {
+			self.texCoords = (0..<coords.count / 2)
+				.map({ i in return [coords[2 * i + 1], coords[2 * i]] })
+				.flatMap({ return $0 })
+		} else {
+			self.texCoords = nil
+		}
 	}
 
 	private var hasSetUp = false

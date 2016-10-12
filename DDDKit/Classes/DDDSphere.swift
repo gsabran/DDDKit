@@ -35,8 +35,8 @@ extension DDDGeometry {
 				let x = cos(phi) * cos(theta)
 				let z = sin(phi) * cos(theta)
 
-				texCoords.append(orientation == .inward ? s * sStep : 1.0 - s * sStep)
 				texCoords.append(1.0 - r * rStep)
+				texCoords.append(orientation == .inward ? s * sStep : 1.0 - s * sStep)
 
 				vertices.append(x * radius)
 				vertices.append(y * radius)
