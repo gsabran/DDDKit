@@ -44,7 +44,6 @@ public class DDDNode {
 		guard let geometry = geometry, let program = material.shaderProgram else {
 			throw DDDError.programNotSetUp
 		}
-		try geometry.setUpIfNotAlready(for: program)
 
 		try setUpIfNotAlready(context: context)
 
@@ -52,7 +51,7 @@ public class DDDNode {
 	}
 
 	func render(with projection: Mat4, pool: DDDTexturePool) {
-		guard let geometry = geometry, let program = material.shaderProgram else { return }
+		guard let program = material.shaderProgram else { return }
 
 		material.properties.forEach { prop in
 			prop.property.prepareToBeUsed(in: pool)
@@ -77,6 +76,9 @@ public class DDDNode {
 		material.set(mat4: GLKMatrix4(projection), for: "u_projection")
 		material.set(mat4: GLKMatrix4(modelView), for: "u_modelview")
 		let vertexBufferOffset = UnsafeRawPointer(bitPattern: 0)
+		guard let geometry = geometry else { return }
+		geometry.setUpIfNotAlready(for: program)
+		geometry.prepareToUse()
 		glDrawElements(GLenum(GL_TRIANGLES), GLsizei(geometry.indices.count), GLenum(GL_UNSIGNED_SHORT), vertexBufferOffset);
 	}
 

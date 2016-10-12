@@ -10,6 +10,7 @@ import Foundation
 import GLKit
 
 public class DDDGeometry {
+	var vertexArrayObject = GLuint()
 	private var vertexIndicesBufferID = GLuint()
 	private var vertexBufferID = GLuint()
 	private var vertexTexCoordID = GLuint()
@@ -27,7 +28,7 @@ public class DDDGeometry {
 		indices: [UInt16],
 		vertices: [GLfloat],
 		texCoords: [GLfloat]? = nil
-	) {
+		) {
 		self.indices = indices
 		self.vertices = vertices
 		if let coords = texCoords {
@@ -40,8 +41,11 @@ public class DDDGeometry {
 	}
 
 	private var hasSetUp = false
-	func setUpIfNotAlready(for program: DDDShaderProgram) throws {
+	func setUpIfNotAlready(for program: DDDShaderProgram) {
 		if hasSetUp { return }
+		//
+		glGenVertexArrays(1, &vertexArrayObject)
+		glBindVertexArray(vertexArrayObject)
 
 		//Indices
 		glGenBuffers(1, &vertexIndicesBufferID);
@@ -54,8 +58,8 @@ public class DDDGeometry {
 		glBindBuffer(GLenum(GL_ARRAY_BUFFER), vertexBufferID);
 		glBufferData(GLenum(GL_ARRAY_BUFFER), vertices.count*MemoryLayout<GLfloat>.size, vertices, GLenum(GL_STATIC_DRAW));
 
-		glEnableVertexAttribArray(GLuint(GLint(GLKVertexAttrib.position.rawValue)));
-		glVertexAttribPointer(GLuint(GLint(GLKVertexAttrib.position.rawValue)), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<GLfloat>.size*3), nil);
+		glEnableVertexAttribArray(GLuint(GLKVertexAttrib.position.rawValue));
+		glVertexAttribPointer(GLuint(GLKVertexAttrib.position.rawValue), 3, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<GLfloat>.size*3), nil);
 
 		// Texture Coordinates
 		if let texCoords = texCoords {
@@ -68,5 +72,9 @@ public class DDDGeometry {
 			glVertexAttribPointer(vertexTexCoordAttributeIndex, 2, GLenum(GL_FLOAT), GLboolean(GL_FALSE), GLsizei(MemoryLayout<GLfloat>.size*2), nil);
 		}
 		hasSetUp = true
+	}
+
+	func prepareToUse() {
+		glBindVertexArray(vertexArrayObject)
 	}
 }
