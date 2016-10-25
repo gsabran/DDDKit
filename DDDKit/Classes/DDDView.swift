@@ -34,6 +34,9 @@ open class DDDViewController: UIViewController {
 	public var scene: DDDScene?
 	/// An optional delegate
 	public weak var delegate: DDDSceneDelegate?
+	///
+	public var overture: Float = 65
+
 	fileprivate var texturesPool: DDDTexturePool?
 	private var displayLink: CADisplayLink?
 
@@ -146,7 +149,6 @@ open class DDDViewController: UIViewController {
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 
 		let aspect = Float(fabs(view.frame.width / view.frame.height))
-		let overture = Float(65.0)
 		let projection = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(overture), aspect, 0.1, 400.0)
 		scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool)
 	}
