@@ -72,6 +72,14 @@ public class DDDMaterial {
 	}
 
 	/**
+	Set a boolean property
+	- Parameter bool: the boolean
+	- Parameter key: the name of the property in the shader
+	*/	public func set(bool: Bool, for key: String) {
+		set(property: DDDBoolProperty(bool), for: key)
+	}
+
+	/**
 	Set a video texture property
 	- Parameter videoTexture: the video texture
 	- Parameter lumaKey: the name of the luma property in the shader
