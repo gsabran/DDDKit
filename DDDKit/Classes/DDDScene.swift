@@ -1,6 +1,6 @@
 //
 //  DDDScene.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 9/28/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
@@ -9,6 +9,7 @@
 import Foundation
 import GLMatrix
 
+/// A 3D scene
 open class DDDScene {
 	private var nodes = Set<DDDNode>()
 
@@ -44,11 +45,20 @@ open class DDDScene {
 			print("could not render scene: \(error)")
 		}
 	}
+	/**
+	Add a node to the scene
+	
+	- Parameter node: the node to be added
+	*/
 	public func add(node: DDDNode) {
 		nodes.insert(node)
 	}
 }
-
+/// An object that responds to scene rendering state change
 public protocol DDDSceneDelegate: class {
+	/** 
+	Called before the scene renders.
+	It's a good place to move objects, change properties etc.
+	*/
 	func willRender(sender: DDDViewController)
 }

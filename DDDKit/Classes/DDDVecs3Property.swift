@@ -9,8 +9,14 @@
 import Foundation
 import GLKit
 
+/// a shader property that contains an array of 3D vectors
 public class DDDVecs3Property: DDDProperty {
 	private let value: [GLfloat]
+	/**
+	Create the property
+
+	- Parameter value: the array of 3D vectors
+	*/
 	public init(_ value: [GLKVector3]) {
 		self.value = value.map({ v in return [v.x, v.y, v.z] }).flatMap({ return $0 })
 	}

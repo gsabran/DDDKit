@@ -1,6 +1,6 @@
 //
 //  DDDImageTexture.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 9/30/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import OpenGLES
 
+/// A shader property that can be used in a 2DSampler
 public class DDDImageTexture: DDDProperty {
 	private var image: CGImage
 	private var texture: DDDTexture?
@@ -17,6 +18,11 @@ public class DDDImageTexture: DDDProperty {
 	private weak var lastSlotUsed: DDDTextureSlot?
 	private var locationsAlreadySet = Set<GLint>()
 
+	/**
+	Create a texture from an image
+	
+	- Parameter image: the image that the texture will contain
+	*/
 	public init(image: CGImage) {
 		self.image = image
 	}

@@ -1,6 +1,6 @@
 //
 //  DDDProgramProperty.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 9/30/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
@@ -9,6 +9,7 @@
 import Foundation
 import OpenGLES
 
+/// describes a property that is attached to a program
 class DDDProgramProperty {
 	fileprivate let id: Int
 	var property: DDDProperty

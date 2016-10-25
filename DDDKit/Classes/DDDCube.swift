@@ -71,7 +71,6 @@ extension DDDGeometry {
 		let vertices = (killEdgeStitching(positions: _positions, axis: X) +
 			killEdgeStitching(positions: _positions, axis: Y) +
 			killEdgeStitching(positions: _positions, axis: Z))
-			.map({ v in return [v.x, v.y, v.z ]}).flatMap({ return $0 })
 
 		// II surfaces (triangles)
 		let indices: [UInt16] = [
@@ -98,11 +97,11 @@ extension DDDGeometry {
 
 		// III texture mapping
 		// get the points in the texture where the faces are split
-		var textureSplitPoints = [[Float]]()
+		var textureSplitPoints = [GLKVector2]()
 		for i in 0...12 {
 			let x = Float(i % 4)
 			let y = Float(i / 4)
-			textureSplitPoints.append([x / 3.0, y / 2.0])
+			textureSplitPoints.append(GLKVector2(v: (x / 3.0, y / 2.0)))
 		}
 		let textCoords = [
 			textureSplitPoints[4],
@@ -131,7 +130,7 @@ extension DDDGeometry {
 			textureSplitPoints[5],
 			textureSplitPoints[6],
 			textureSplitPoints[7],
-			].flatMap({ return $0 })
+			]
 
 		return DDDGeometry(
 			indices: indices,

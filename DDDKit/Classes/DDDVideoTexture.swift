@@ -1,13 +1,13 @@
 //
 //  DDDVideoTexture.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 10/1/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
 //
 
 import AVFoundation
-
+/// Describes a video texture that can be used as a luma and chroma planes in a shader
 public class DDDVideoTexture {
 	fileprivate var id: Int
 	let lumaPlane: DDDVideoPlaneTexture
@@ -22,8 +22,14 @@ public class DDDVideoTexture {
 	private var videoItem: AVPlayerItem?
 	private var context: EAGLContext?
 	private var hasRetrivedBufferForCurrentVideoItem = false
+	/// A delegate that should be messaged when the texture's state changes
 	public weak var delegate: DDDVideoTextureDelegate?
 
+	/**
+	Create the video texture
+	
+	- Parameter player: the player that controls the video to be displayed
+	*/
 	public init(player: AVPlayer) {
 		self.player = player
 		self.id = Int(arc4random())
@@ -218,7 +224,7 @@ extension DDDVideoTexture: Hashable {
 
 public protocol DDDVideoTextureDelegate: class {
 	/**
-	when a video item has received data and can be drawn at the next rendering pass
+	When a video item has received data and can be drawn at the next rendering pass
 	*/
 	func videoItemWillRenderForFirstTimeAtNextFrame()
 }

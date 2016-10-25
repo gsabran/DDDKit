@@ -1,6 +1,6 @@
 //
 //  DDDShaderProgram.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 9/27/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
@@ -8,6 +8,10 @@
 
 import UIKit
 
+/** 
+A shader program that describes how object should look like.
+It's made of a vertex and fragment shaders
+*/
 public class DDDShaderProgram: NSObject {
 	enum Uniforms {
 		case projection
@@ -28,7 +32,9 @@ public class DDDShaderProgram: NSObject {
 
 	let shaderModifiers: [DDDShaderEntryPoint: String]?
 
+	/// The original code for the vertex shader, before optional shader modifiers are applied
 	public private(set) var originalVertexShader: String
+	/// The original code for the fragment shader, before optional shader modifiers are applied
 	public private(set) var originalFragmentShader: String
 
 	private static func addShaderModifier(to shader: DDDShader, modifier: String) {
@@ -51,6 +57,13 @@ public class DDDShaderProgram: NSObject {
 		shader.code = NSString(string: shaderCode)
 	}
 
+	/**
+	Create a shader program
+	
+	- Parameter vShader: the vertex shader, defaulting to a simple one
+	- Parameter fShader: the vertex shader, defaulting to a red one
+	- Parameter shaderModifiers: (optional) a set of modifications to be applied to the shaders. See the DDDShaderEntryPoint description
+	*/
 	public init(
 		vertex vShader: DDDVertexShader? = nil,
 		fragment fShader: DDDFragmentShader? = nil,
@@ -142,8 +155,19 @@ public class DDDShaderProgram: NSObject {
 		glUseProgram(program)
 	}
 }
+/**
+Shader modifiers alter the code of a shader. They make it easy to reuse generic shader logic.
+Each modifier can contains two parts that will be inserted in different places:
+- a body part that should inserted in the _main_ function. It's used to change computation.
+- a pre-body part that should be inserted before the _main_ function. It's used to declare variables.
 
+The exact place they are inserted is at the commented lines _"// header modifier here"_ and _"// body modifier here"_ that should be part of the code of the shader that should support modifiers. In the absence of such lines, the modifiers will be ignores.
+
+The modifier is passed as a simple string of code. The pre-body will correspond to the _uniform_ variables, and optinally everything put before a line _#pragma body_ The body part is everything else.
+*/
 public enum DDDShaderEntryPoint {
-	case fragment
+	/// A modification to be applied in the geometry computation
 	case geometry
+	/// A modification to be applied in the pixel computation
+	case fragment
 }

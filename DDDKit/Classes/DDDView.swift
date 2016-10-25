@@ -1,6 +1,6 @@
 //
 //  DDDView.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 9/28/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
@@ -26,12 +26,13 @@ open class DDDViewController: UIViewController {
 	fileprivate var depthRenderBuffer = GLuint()
 
 	private var wasPaused = false
-	/**
-	wether the rendering computation should be skipped
-	*/
+	/// Wether the rendering computation should be skipped
 	public var isPaused = false
+	/// Wether the rendering computation should restart after the view become active
 	public var resumeOnDidBecomeActive = true
+	/// The 3D scene to be displayed
 	public var scene: DDDScene?
+	/// An optional delegate
 	public weak var delegate: DDDSceneDelegate?
 	fileprivate var texturesPool: DDDTexturePool?
 	private var displayLink: CADisplayLink?

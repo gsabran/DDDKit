@@ -1,6 +1,6 @@
 //
 //  DDDShader.swift
-//  HTY360Swift
+//  DDDKit
 //
 //  Created by Guillaume Sabran on 9/28/16.
 //  Copyright © 2016 Guillaume Sabran. All rights reserved.
@@ -10,11 +10,14 @@ import Foundation
 import GLKit
 
 public enum DDDShaderType {
+	/// a shader describing vertex level computations (not too much expensive)
 	case vertex
+	/// a shader describing framgment level computations (expensives)
 	case fragment
 }
 public class DDDShader {
 	var shaderReference = GLuint()
+	/// the type of the shader. Either vertex or fragment
 	public let type: DDDShaderType
 	var originalCode: NSString
 	var code: NSString
