@@ -9,6 +9,7 @@
 import AVFoundation
 /// Describes a video texture that can be used as a luma and chroma planes in a shader
 public class DDDVideoTexture {
+	private static var id: Int = 0
 	fileprivate var id: Int
 	let lumaPlane: DDDVideoPlaneTexture
 	let chromaPlane: DDDVideoPlaneTexture
@@ -32,7 +33,8 @@ public class DDDVideoTexture {
 	*/
 	public init(player: AVPlayer) {
 		self.player = player
-		self.id = Int(arc4random())
+		DDDVideoTexture.id += 1
+		self.id = DDDVideoTexture.id.hashValue
 		lumaPlane = DDDVideoPlaneTexture()
 		chromaPlane = DDDVideoPlaneTexture()
 

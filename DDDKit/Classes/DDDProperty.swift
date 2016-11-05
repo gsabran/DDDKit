@@ -11,11 +11,13 @@ import OpenGLES
 
 /// A property (uniform) that can be used in a shader program
 public class DDDProperty {
+	private static var id: Int = 0
 	fileprivate var id: Int
 	var willBeUsedAtNextDraw = false
 
 	init() {
-		self.id = Int(arc4random())
+		DDDProperty.id += 1
+		self.id = DDDProperty.id.hashValue
 	}
 
 	private var hasLoaded = false

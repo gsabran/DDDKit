@@ -11,6 +11,7 @@ import OpenGLES
 
 /// describes a property that is attached to a program
 class DDDProgramProperty {
+	private static var id: Int = 0
 	fileprivate let id: Int
 	var property: DDDProperty
 	var location: GLint?
@@ -19,7 +20,8 @@ class DDDProgramProperty {
 	init(property: DDDProperty, named name: String) {
 		self.property = property
 		self.locationName = name
-		self.id = Int(arc4random())
+		DDDProgramProperty.id += 1
+		self.id = DDDProgramProperty.id.hashValue
 	}
 }
 

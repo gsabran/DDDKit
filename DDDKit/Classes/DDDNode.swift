@@ -32,9 +32,13 @@ public class DDDNode {
 	/// Describes attributes related to the node's visual aspect
 	public let material = DDDMaterial()
 
-	public init() {}
+	public init() {
+		DDDNode.id += 1
+		self.id = DDDNode.id.hashValue
+	}
+	private static var id: Int = 0
+	fileprivate let id: Int
 
-	fileprivate let id = Int(arc4random())
 	private let _modelView = Mat4.Identity()
 	var modelView: Mat4 {
 		Mat4.fromQuat(q: rotation, andOutputTo: _modelView)
