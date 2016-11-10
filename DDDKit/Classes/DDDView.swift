@@ -79,6 +79,11 @@ open class DDDViewController: UIViewController {
 		super.willMove(toParentViewController: parent)
 	}
 
+	open override func canPerformUnwindSegueAction(_ action: Selector, from
+		fromViewController: UIViewController, withSender sender: Any) -> Bool {
+		return false
+	}
+
 	private func initializeGL() {
 		// depth buffer
 		glGenRenderbuffers(1, &depthRenderBuffer);
