@@ -25,7 +25,6 @@ public class DDDVideoTexture {
 	private var hasRetrivedBufferForCurrentVideoItem = false
 	/// A delegate that should be messaged when the texture's state changes
 	public weak var delegate: DDDVideoTextureDelegate?
-
 	/**
 	Create the video texture
 	
@@ -85,7 +84,7 @@ public class DDDVideoTexture {
 		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
 		let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
 		if buffer == nil {
-			print("could not get video buffer")
+			delegate?.hasCaughtError(error: DDDError.failedToGetVideoBuffer)
 		}
 		return buffer
 	}
@@ -229,4 +228,9 @@ public protocol DDDVideoTextureDelegate: class {
 	When a video item has received data and can be drawn at the next rendering pass
 	*/
 	func videoItemWillRenderForFirstTimeAtNextFrame()
+
+	/**
+	Report that something unexpected happened
+	*/
+	func hasCaughtError(error: DDDError)
 }
