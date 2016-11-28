@@ -59,13 +59,14 @@ videoNode.position = Vec3(v: (0, 0, -3))
 - You're all set!
 
 
-## Doc:
+## Documentation
 ### DDDViewController
 A `UIViewController` designed to hold a 3D scene. It has two main attributes:
 - a DDDScene that contains a description of the scene
 - a DDDViewDelegate that can notified of scene changes
-Example:
+
 ```swift
+// Example
 class ViewController: DDDViewController {
   var node: DDDNode!
 
@@ -87,6 +88,28 @@ extension ViewController: DDDSceneDelegate {
 }
 ```
 
+### DDDScene
+A container for all the elements. 
+
+```swift
+// Example
+let scene = DDDScene()
+let node = DDDNode() // more on nodes below
+scene.add(node: node)
+```
+
+### DDDNode
+A representation of a single element in the scene. Main attributes are:
+- material: a DDDMaterial describing the node's visual aspect
+- position: the 3D position of the element
+- rotation: the 3d rotation of the element
+
+```swift
+// Example
+let node = DDDNode()
+node.material = DDDMaterial() // more on materials below
+node.position = Vec3(v: (0, 0, 1))
+```
 
 ## Author
 

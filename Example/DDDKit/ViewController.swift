@@ -83,6 +83,7 @@ class ViewController: DDDViewController {
 		}
 
 		scene?.add(node: videoNode)
+		videoNode.
 		videoNode.position = Vec3(v: (0, 0, -3))
 		self.videoNode = videoNode
 	}
