@@ -21,7 +21,7 @@ public enum DDDError: Error {
 
 
 /**
-An item that can be put in a 3d scene
+An element that can be put in a 3d scene
 */
 public class DDDNode {
 	/// The node position from the origin

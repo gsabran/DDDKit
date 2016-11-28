@@ -9,7 +9,7 @@
 import Foundation
 
 /**
-A shader that describe fragment level computations
+A shader that describes fragment level computations
 */
 public class DDDFragmentShader: DDDShader {
 	/*

@@ -54,11 +54,3 @@ open class DDDScene {
 		nodes.insert(node)
 	}
 }
-/// An object that responds to scene rendering state change
-public protocol DDDSceneDelegate: class {
-	/** 
-	Called before the scene renders.
-	It's a good place to move objects, change properties etc.
-	*/
-	func willRender(sender: DDDViewController)
-}

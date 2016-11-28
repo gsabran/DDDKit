@@ -1,23 +1,62 @@
 # DDDKit
 
-[![CI Status](http://img.shields.io/travis/Guillaume Sabran/DDDKit.svg?style=flat)](https://travis-ci.org/Guillaume Sabran/DDDKit)
 [![Version](https://img.shields.io/cocoapods/v/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![License](https://img.shields.io/cocoapods/l/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![Platform](https://img.shields.io/cocoapods/p/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 
+
+## Installation:
+- Get [CocoaPods](http://cocoapods.org) if you don't have it already:
+  ```bash
+  gem install cocoapods
+  # (or if the above fails)
+  sudo gem install cocoapods
+  ```
+
+- Add the following lines to your Podfile:
+
+  ```ruby
+  pod 'DDDKit'
+  ```
+
+- Run `pod install`
+- You're all set!
+
+## TLDR:
+
+- A pure Swift 360 video player as a demo of this framework, with some fancy features such as color filters etc.
+- An open and reliable framework to handle 3D graphics with a focus on videos, Apple's SceneKit satisfying none of those two qualities.
+- A number of SceneKit's features are missing, but the one implemented are:
+  - An easy to use syntax and logic
+  - Elements that can have any shape / position
+  - Support of image and video textures
+  - Direct and easy access to shader's code, shaders modifiers.
+  - Focus on reliability on video texture support.
+
 ## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+```swift
+let player = AVPlayer()
+// load a video etc ...
 
-## Requirements
+let scene = DDDScene()
+let videoNode = DDDNode()
+videoNode.geometry = DDDGeometry.Sphere(radius: 1.0)
 
-## Installation
+do {
+  // change colors to only keep red
+  let program = try DDDShaderProgram(shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(gl_FragColor.r, 0.0, 0.0, 1.0);"])
+  videoNode.material.shaderProgram = program
 
-DDDKit is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+  let videoTexture = DDDVideoTexture(player: player)
+  videoNode.material.set(property: videoTexture, for: "SamplerY", and: "SamplerUV")
 
-```ruby
-pod "DDDKit"
+} catch {
+  print("could not set shaders: \(error)")
+}
+
+scene.add(node: videoNode)
+videoNode.position = Vec3(v: (0, 0, -3))
 ```
 
 ## Author

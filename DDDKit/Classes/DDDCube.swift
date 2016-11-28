@@ -10,132 +10,137 @@ import Foundation
 import GLKit
 
 extension DDDGeometry {
-	public static func Cube(
-		scale: GLfloat = 1.0,
-		rings: Int = 20,
-		orientation: DDDOrientation = .outward
-		) -> DDDGeometry {
-		print("WARNING: cubic geometry has not been tested")
-		let halfSide = Float(0.5 * scale)
 
-		// I vertex positions
+	/// Represents a cube face
+	private struct Face {
+		let verticeRef: GLKVector3
+		let verticeX: GLKVector3
+		let verticeY: GLKVector3
+		let textureMappingRef: GLKVector2
+	}
 
-		// The cube vertex are like:
+	/// map a position on a cube to a position on a sphere
+	private static func projectionOnSphere(point: GLKVector3,
+	                                       radius: Float) -> GLKVector3 {
+
+		let r = sqrt(point.x * point.x + point.y * point.y + point.z * point.z)
+		let theta = acos(-point.y / r)
+		let phi = atan2(-point.x, point.z)
+
+		return GLKVector3(v: (
+			radius * sin(theta) * cos(phi),
+			radius * sin(theta) * sin(phi),
+			radius * cos(theta)
+		))
+	}
+
+	/**
+	Create a spherical geometry that uses a cubic texture mapping (see https://github.com/facebook/transform for instance)
+
+	- Parameter radius: the radius of the sphere
+	- Parameter strides: the number of subdivisions
+	*/
+	static func Cube(radius: GLfloat = 1.0, strides: Int = 20) -> DDDGeometry {
+
+		// The cube vertices
 		//
 		//    5---------4
 		//   /.        /|
 		//  / .       / |
-		// 7---------6  |
-		// |  .      |  |
-		// |  .      |  |
-		// |  1......|..0
-		// | .       | /
-		// |.        |/
-		// 3---------2
+		// 7---------6  |       Y
+		// |  .      |  |      /
+		// |  .      |  |     /
+		// |  1......|..0    0----Z
+		// | .       | /     |
+		// |.        |/      |
+		// 3---------2       X
 
-		let _positions = [
-			GLKVector3(v: (-halfSide, -halfSide,  halfSide)),
-			GLKVector3(v: ( halfSide, -halfSide,  halfSide)),
-			GLKVector3(v: (-halfSide, -halfSide, -halfSide)),
-			GLKVector3(v: ( halfSide, -halfSide, -halfSide)),
-			GLKVector3(v: (-halfSide,  halfSide,  halfSide)),
-			GLKVector3(v: ( halfSide,  halfSide,  halfSide)),
-			GLKVector3(v: (-halfSide,  halfSide, -halfSide)),
-			GLKVector3(v: ( halfSide,  halfSide, -halfSide)),
-		]
+		var vertices = [GLKVector3]()
+		var texCoords = [GLKVector2]()
+		var indices = [UInt16]()
 
-		// points are tripled since they are each used on 3 faces
-		// and there's no continuity in the UV mapping
-		// so we need to duplicate the points
-		//
-		// we'll use the first third for the faces orthogonal to the X (left) axis,
-		// the second for the Y (top) axis and the third for the Z (front) axis
-		let X: UInt16 = 0
-		let Y: UInt16 = 8
-		let Z: UInt16 = 16
-
-		// ignore that at first lecture, unless edges stitching looks bad
-		// TODO: fix cubic stitching for real :)
-		func killEdgeStitching(positions: [GLKVector3], axis: UInt16) -> [GLKVector3] {
-			var res = [GLKVector3]()
-			let delta = Float(0.99)
-			for pos in positions {
-				res.append(GLKVector3(v: (
-					pos.x * (axis == X ? delta : 1),
-					pos.y * (axis == Y ? delta : 1),
-					pos.z * (axis == Z ? delta : 1)
-				)))
-			}
-			return res
-		}
-		let vertices = (killEdgeStitching(positions: _positions, axis: X) +
-			killEdgeStitching(positions: _positions, axis: Y) +
-			killEdgeStitching(positions: _positions, axis: Z))
-
-		// II surfaces (triangles)
-		let indices: [UInt16] = [
-			// bottom
-			0 + Y, 2 + Y, 1 + Y,
-			1 + Y, 2 + Y, 3 + Y,
-			// back
-			2 + Z, 6 + Z, 3 + Z,
-			3 + Z, 6 + Z, 7 + Z,
-			// left
-			0 + X, 4 + X, 2 + X,
-			2 + X, 4 + X, 6 + X,
-			// right
-			1 + X, 3 + X, 5 + X,
-			3 + X, 7 + X, 5 + X,
+		let fStride = Float(strides)
+		let padding = Float(0.003)
+		let faces = [
 			// front
-			0 + Z, 1 + Z, 4 + Z,
-			1 + Z, 5 + Z, 4 + Z,
+			Face(verticeRef: GLKVector3(v: (1, 1, -1)),
+			     verticeX: GLKVector3(v: (0, 0, 2)),
+			     verticeY: GLKVector3(v: (-2, 0, 0)),
+			     textureMappingRef: GLKVector2(v: (1.0 / 3.0, 0))),
+			// right
+			Face(verticeRef: GLKVector3(v: (1, 1, 1)),
+			     verticeX: GLKVector3(v: (0, -2, 0)),
+			     verticeY: GLKVector3(v: (-2, 0, 0)),
+			     textureMappingRef: GLKVector2(v: (0, 0.5))),
+			// left
+			Face(verticeRef: GLKVector3(v: (1, -1, -1)),
+			     verticeX: GLKVector3(v: (0, 2, 0)),
+			     verticeY: GLKVector3(v: (-2, 0, 0)),
+			     textureMappingRef: GLKVector2(v: (1.0 / 3.0, 0.5))),
+			// back
+			Face(verticeRef: GLKVector3(v: (1, -1, 1)),
+			     verticeX: GLKVector3(v: (0, 0, -2)),
+			     verticeY: GLKVector3(v: (-2, 0, 0)),
+			     textureMappingRef: GLKVector2(v: (2.0 / 3.0, 0))),
 			// top
-			4 + Y, 5 + Y, 6 + Y,
-			5 + Y, 7 + Y, 6 + Y,
+			Face(verticeRef: GLKVector3(v: (-1, 1, -1)),
+			     verticeX: GLKVector3(v: (0, 0, 2)),
+			     verticeY: GLKVector3(v: (0, -2, 0)),
+			     textureMappingRef: GLKVector2(v: (2.0 / 3.0, 0.5))),
+			// bottom
+			Face(verticeRef: GLKVector3(v: (1, -1, -1)),
+			     verticeX: GLKVector3(v: (0, 0, 2)),
+			     verticeY: GLKVector3(v: (0, 2, 0)),
+			     textureMappingRef: GLKVector2(v: (0, 0))),
 			]
 
+		faces.forEach { face in
+			let indicesOffset = vertices.count
+			for i in 0 ... strides {
+				let k = Float(i)
+				for j in 0 ... strides {
+					let l = Float(j)
+					let x0 = face.verticeRef
+					let a = face.verticeX
+					let b = face.verticeY
+					let t = face.textureMappingRef
+					let point = projectionOnSphere(
+						point: GLKVector3(v: (
+							x0.x + a.x * k / fStride + b.x * l / fStride,
+							x0.y + a.y * k / fStride + b.y * l / fStride,
+							x0.z + a.z * k / fStride + b.z * l / fStride
+						)),
+						radius: radius
+					)
+					let tex = GLKVector2(v: (
+						t.x + 1.0 / 3.0 *
+							(k / fStride * (1 - 2 * padding) + padding),
+						t.y + 0.5 * (l / fStride *
+							(1 - 2 * padding) + padding)
+					))
 
-		// III texture mapping
-		// get the points in the texture where the faces are split
-		var textureSplitPoints = [GLKVector2]()
-		for i in 0...12 {
-			let x = Float(i % 4)
-			let y = Float(i / 4)
-			textureSplitPoints.append(GLKVector2(v: (x / 3.0, y / 2.0)))
+					vertices.append(point)
+					texCoords.append(GLKVector2(v: (1.0 - tex.y, tex.x)))
+				}
+			}
+
+			for i in 0 ..< strides {
+				for j in 0 ..< strides {
+					let p = indicesOffset + j + i * (strides + 1)
+
+					indices.append(UInt16(p))
+					indices.append(UInt16(p + strides + 1))
+					indices.append(UInt16(p + 1))
+
+					indices.append(UInt16(p + strides + 1))
+					indices.append(UInt16(p + strides + 2))
+					indices.append(UInt16(p + 1))
+				}
+			}
 		}
-		let textCoords = [
-			textureSplitPoints[4],
-			textureSplitPoints[6],
-			textureSplitPoints[5],
-			textureSplitPoints[5],
-			textureSplitPoints[8],
-			textureSplitPoints[10],
-			textureSplitPoints[9],
-			textureSplitPoints[9],
 
-			textureSplitPoints[5],
-			textureSplitPoints[4],
-			textureSplitPoints[1],
-			textureSplitPoints[0],
-			textureSplitPoints[7],
-			textureSplitPoints[6],
-			textureSplitPoints[11],
-			textureSplitPoints[10],
-
-			textureSplitPoints[2],
-			textureSplitPoints[1],
-			textureSplitPoints[2],
-			textureSplitPoints[3],
-			textureSplitPoints[6],
-			textureSplitPoints[5],
-			textureSplitPoints[6],
-			textureSplitPoints[7],
-			]
-
-		return DDDGeometry(
-			indices: indices,
-			vertices: vertices,
-			texCoords: textCoords
-		)
+		return DDDGeometry(indices: indices,
+		                   vertices: vertices,
+		                   texCoords: texCoords)
 	}
 }
