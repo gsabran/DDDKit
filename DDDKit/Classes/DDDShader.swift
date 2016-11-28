@@ -78,7 +78,7 @@ public class DDDShader {
 
 			glGetShaderInfoLog(shader.pointee, GLsizei(MemoryLayout<GLchar>.size * 256), &infoLogLength, infoLog)
 			NSLog("OpenGLView compileShader():  glCompileShader() failed:  %@", String(cString: infoLog))
-			NSLog("Shader is \(shaderStringUTF8)")
+			NSLog("Shader is \(String(code))")
 
 			infoLog.deallocate(capacity: 256)
 			throw DDDError.shaderFailedToCompile

@@ -29,7 +29,7 @@ class ViewController: DDDViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		let path = Bundle.main.path(forResource: "big_buck_bunny", ofType: "mp4")!
+		let path = Bundle.main.path(forResource: "ski", ofType: "mp4")!
 		video = URL(fileURLWithPath: path)
 		self.setUpVideoPlayback()
 		self.setUpScene()
@@ -72,7 +72,13 @@ class ViewController: DDDViewController {
 
 		do {
 			let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [.fragment: "gl_FragColor = vec4(v_textureCoordinate, 0.0, 1.0);"])
+			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [
+				.fragment:
+					"uniform mediump vec3 color_projection; \n" +
+					"vec3 col = gl_FragColor.xyz; \n" +
+					"float grey = col.x * color_projection.x + col.y * color_projection.y + col.z * color_projection.z; \n" +
+					"gl_FragColor = vec4(grey * color_projection, 1.0); \n",
+			])
 			videoNode.material.shaderProgram = program
 
 			let videoTexture = DDDVideoTexture(player: player)
@@ -83,7 +89,6 @@ class ViewController: DDDViewController {
 		}
 
 		scene?.add(node: videoNode)
-		videoNode.
 		videoNode.position = Vec3(v: (0, 0, -3))
 		self.videoNode = videoNode
 	}
@@ -91,16 +96,12 @@ class ViewController: DDDViewController {
 
 extension ViewController: DDDSceneDelegate {
 	func willRender(sender: DDDViewController) {
-		videoNode.position = Vec3(v: <#T##(GLfloat, GLfloat, GLfloat)#>)
-		/*
 		let d = Date()
 		let dt1 = Float((d.timeIntervalSince1970 / 3.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
 		let dt2 = Float((d.timeIntervalSince1970 / 7.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
-		let dt3 = Float((d.timeIntervalSince1970 / 10.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
-
-		videoNode.rotation = Quat.init(x: 0, y: 0, z: 0, w: 1)
-		videoNode.rotateX(by: dt1)
-		videoNode.rotateY(by: dt2)
-		videoNode.rotateZ(by: dt3)*/
+		// change the color effect
+		videoNode.material.set(vec3: GLKVector3(v: (cos(dt1), sin(dt1) * cos(dt2), sin(dt1) * sin(dt2))), for: "color_projection")
+		// rotate the video
+		videoNode.rotation = Quat(x: 0, y: sin(dt1), z: 0, w: cos(dt1))
 	}
 }
