@@ -1,8 +1,8 @@
 //
 //  Shader.fsh
 //
-//  Created by  on 11/8/15.
-//  Copyright © 2015 Hanton. All rights reserved.
+//  Created by Guillaume Sabran on 10/02/2016.
+//  Copyright (c) 2016 Guillaume Sabran. All rights reserved.
 //
 
 precision mediump float;

@@ -4,24 +4,6 @@
 [![License](https://img.shields.io/cocoapods/l/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![Platform](https://img.shields.io/cocoapods/p/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 
-
-## Installation:
-- Get [CocoaPods](http://cocoapods.org) if you don't have it already:
-  ```bash
-  gem install cocoapods
-  # (or if the above fails)
-  sudo gem install cocoapods
-  ```
-
-- Add the following lines to your Podfile:
-
-  ```ruby
-  pod 'DDDKit'
-  ```
-
-- Run `pod install`
-- You're all set!
-
 ## TLDR:
 
 - A pure Swift 360 video player as a demo of this framework, with some fancy features such as color filters etc.
@@ -58,6 +40,53 @@ do {
 scene.add(node: videoNode)
 videoNode.position = Vec3(v: (0, 0, -3))
 ```
+
+## Installation:
+- Get [CocoaPods](http://cocoapods.org) if you don't have it already:
+  ```bash
+  gem install cocoapods
+  # (or if the above fails)
+  sudo gem install cocoapods
+  ```
+
+- Add the following lines to your Podfile:
+
+  ```ruby
+  pod 'DDDKit'
+  ```
+
+- Run `pod install`
+- You're all set!
+
+
+## Doc:
+### DDDViewController
+A `UIViewController` designed to hold a 3D scene. It has two main attributes:
+- a DDDScene that contains a description of the scene
+- a DDDViewDelegate that can notified of scene changes
+Example:
+```swift
+class ViewController: DDDViewController {
+  var node: DDDNode!
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    scene = DDDScene()
+    node = DDDNode()
+    // Do some things on the node, see below
+    scene?.add(node: node)
+    delegate = self
+  }
+}
+
+extension ViewController: DDDSceneDelegate {
+  func willRender(sender: DDDViewController) {
+    // move the node
+    node.position = Vec3(v: (node.position.x + 0.1, node.position.y, node.position.z))
+  }
+}
+```
+
 
 ## Author
 

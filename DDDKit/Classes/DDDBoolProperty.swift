@@ -2,8 +2,8 @@
 //  DDDBoolProperty.swift
 //  Pods
 //
-//  Created by Guillaume Sabran on 10/25/16.
-//
+//  Created by Guillaume Sabran on 10/02/2016.
+//  Copyright (c) 2016 Guillaume Sabran. All rights reserved.
 //
 
 import Foundation

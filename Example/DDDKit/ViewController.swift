@@ -32,17 +32,11 @@ class ViewController: DDDViewController {
 		let path = Bundle.main.path(forResource: "big_buck_bunny", ofType: "mp4")!
 		video = URL(fileURLWithPath: path)
 		self.setUpVideoPlayback()
-		self.configureGLKView()
+		self.setUpScene()
 	}
 
 	private func setUpVideoPlayback() {
 		player = AVPlayer()
-
-		do {
-			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-		} catch {
-			print("Could not use AVAudioSessionCategoryPlayback")
-		}
 
 		let asset = AVURLAsset(url: video)
 		let requestedKeys = [kTracksKey, kPlayableKey]
@@ -60,19 +54,25 @@ class ViewController: DDDViewController {
 		})
 	}
 
+	private func play() {
+		if isPlaying { return }
+		self.player!.seek(to: kCMTimeZero)
+		self.player!.play()
+	}
+
 
 	fileprivate var videoNode: DDDNode!
-	private func configureGLKView() {
-		self.delegate = self
+	private func setUpScene() {
+		delegate = self
 
-		self.scene = DDDScene()
+		scene = DDDScene()
 		let videoNode = DDDNode()
 		videoNode.geometry = DDDGeometry.Sphere(radius: 1.0, rings: 40, sectors: 40, orientation: .inward)
 
 
 		do {
 			let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [DDDShaderEntryPoint.fragment: "gl_FragColor = vec4(v_textureCoordinate, 0.0, 1.0);"])
+			let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [.fragment: "gl_FragColor = vec4(v_textureCoordinate, 0.0, 1.0);"])
 			videoNode.material.shaderProgram = program
 
 			let videoTexture = DDDVideoTexture(player: player)
@@ -86,18 +86,11 @@ class ViewController: DDDViewController {
 		videoNode.position = Vec3(v: (0, 0, -3))
 		self.videoNode = videoNode
 	}
-
-	private func play() {
-		if isPlaying { return }
-		self.player!.seek(to: kCMTimeZero)
-		self.player!.play()
-	}
-	var previousRenderingAt: Double = 0
 }
 
 extension ViewController: DDDSceneDelegate {
 	func willRender(sender: DDDViewController) {
-		
+		videoNode.position = Vec3(v: <#T##(GLfloat, GLfloat, GLfloat)#>)
 		/*
 		let d = Date()
 		let dt1 = Float((d.timeIntervalSince1970 / 3.0).truncatingRemainder(dividingBy: 2.0 * Double.pi))
