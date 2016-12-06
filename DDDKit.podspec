@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'DDDKit'
-  s.version          = '0.2.21'
+  s.version          = '0.2.22'
   s.summary          = 'DDDKit is an open source version of SCNKit'
 
 # This description is used to generate tags and improve search results.

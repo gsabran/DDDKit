@@ -67,7 +67,8 @@ public class DDDMaterial {
 	Set a 4x4 matrix property
 	- Parameter mat4: the 4x4 matrix
 	- Parameter key: the name of the property in the shader
-	*/	public func set(mat4: GLKMatrix4, for key: String) {
+	*/
+	public func set(mat4: GLKMatrix4, for key: String) {
 		set(property: DDDMat4Property(mat4), for: key)
 	}
 
@@ -75,8 +76,18 @@ public class DDDMaterial {
 	Set a boolean property
 	- Parameter bool: the boolean
 	- Parameter key: the name of the property in the shader
-	*/	public func set(bool: Bool, for key: String) {
+	*/
+	public func set(bool: Bool, for key: String) {
 		set(property: DDDBoolProperty(bool), for: key)
+	}
+
+	/**
+	Set a float property
+	- Parameter float: the float
+	- Parameter key: the name of the property in the shader
+	*/
+	public func set(float: CGFloat, for key: String) {
+		set(property: DDDFloatProperty(float), for: key)
 	}
 
 	/**
