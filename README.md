@@ -1,5 +1,6 @@
 # DDDKit
 
+[![Swift Version][swift-image]][swift-url]
 [![Version](https://img.shields.io/cocoapods/v/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![License](https://img.shields.io/cocoapods/l/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![Platform](https://img.shields.io/cocoapods/p/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
@@ -31,6 +32,13 @@ An open source Swift (OpenGL backed) library for 3D rendering, with focus on vid
 - poor documentation
 - unresponsiveness from Apple on issues, and no timeline/transparency on fixes
 - no access to code to fix things yourself, since it's not open source.
+
+## Installation
+See the [wiki](https://github.com/team-pie/DDDKit/wiki/Installation)! or:
+```
+pod 'DDDKit'
+```
+
 
 ## Documentation
 See the [wiki](https://github.com/gsabran/DDDKit/wiki)!
