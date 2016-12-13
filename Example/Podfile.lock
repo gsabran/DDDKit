@@ -1,0 +1,19 @@
+PODS:
+  - DDDKit (0.2.22):
+    - GLMatrix (= 0.1.5)
+  - GLMatrix (0.1.5)
+
+DEPENDENCIES:
+  - DDDKit (from `../`)
+
+EXTERNAL SOURCES:
+  DDDKit:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  DDDKit: 3a1d7af2808ccf208149b95d53a83060fa3efb87
+  GLMatrix: 59e00baabb2b7d942c6c77ab09bdb2d020ccf91f
+
+PODFILE CHECKSUM: 893c6a9bea368e31a28e21c2766ef70b7bb63463
+
+COCOAPODS: 1.1.1

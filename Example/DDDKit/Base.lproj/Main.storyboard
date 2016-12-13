@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16A323" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="DDDKit_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
+                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fd0-md-yRA">
+                                <rect key="frame" x="76" y="547" width="34" height="30"/>
+                                <state key="normal" title="B&amp;W"/>
+                                <connections>
+                                    <action selector="didPressBW:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="P6p-sv-8Rs"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Foi-8K-3bF">
+                                <rect key="frame" x="68" y="604" width="50" height="30"/>
+                                <state key="normal" title="Default"/>
+                                <connections>
+                                    <action selector="didPressDefault:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="yvz-uK-kEq"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rbv-ZZ-vhE">
+                                <rect key="frame" x="240" y="604" width="88" height="30"/>
+                                <state key="normal" title="Moving B&amp;W"/>
+                                <connections>
+                                    <action selector="didPressMovingBW:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="iTD-FT-KdH"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3xR-Ko-wyf">
+                                <rect key="frame" x="269" y="547" width="30" height="30"/>
+                                <state key="normal" title="Blur"/>
+                                <connections>
+                                    <action selector="didPressBlur:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="nIt-me-Sk2"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <gestureRecognizers/>
+                        <constraints>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Fd0-md-yRA" secondAttribute="bottom" constant="90" id="5Xe-Nq-eLy"/>
+                            <constraint firstItem="Fd0-md-yRA" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="60" id="7ov-jz-8hy"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Rbv-ZZ-vhE" secondAttribute="bottom" constant="33" id="PLn-4f-tKw"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="3xR-Ko-wyf" secondAttribute="trailing" constant="60" id="dNN-ri-FoB"/>
+                            <constraint firstItem="Rbv-ZZ-vhE" firstAttribute="centerX" secondItem="3xR-Ko-wyf" secondAttribute="centerX" id="g1S-uN-361"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Foi-8K-3bF" secondAttribute="bottom" constant="34" id="gU2-Kz-osW"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="3xR-Ko-wyf" secondAttribute="bottom" constant="90" id="jlZ-mY-9fJ"/>
+                            <constraint firstItem="Foi-8K-3bF" firstAttribute="centerX" secondItem="Fd0-md-yRA" secondAttribute="centerX" id="s3x-4u-fiF"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
