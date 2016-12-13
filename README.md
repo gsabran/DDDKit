@@ -1,8 +1,8 @@
 # DDDKit
 
-[![Swift Version][swift-image]][swift-url]
+[![Swift Version](https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat)][https://swift.org]
 [![Version](https://img.shields.io/cocoapods/v/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
-[![License](https://img.shields.io/cocoapods/l/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![Platform](https://img.shields.io/cocoapods/p/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 
 An open source Swift (OpenGL backed) library for 3D rendering, with focus on video support.
@@ -25,7 +25,7 @@ An open source Swift (OpenGL backed) library for 3D rendering, with focus on vid
 
 ## Why not SceneKit?
 
-- SceneKit has bugs, such as memory leaks, failing video support (see [SO](http://stackoverflow.com/questions/39542205/ios10-scenekit-render-a-video-with-custom-shader)
+- SceneKit has bugs, such as memory leaks, failing video support (see [SO](http://stackoverflow.com/questions/39542205/ios10-scenekit-render-a-video-with-custom-shader))
 - no support of AVPlayerLayer / AVPlayer as video input
 - indirect video support (through SpriteKit)
 - openGL backed rendering failing on iOS 10
