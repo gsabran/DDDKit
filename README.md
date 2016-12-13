@@ -1,6 +1,6 @@
 # DDDKit
 
-[![Swift Version](https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat)][https://swift.org]
+[![Swift Version](https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat)](https://swift.org)
 [![Version](https://img.shields.io/cocoapods/v/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![Platform](https://img.shields.io/cocoapods/p/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
