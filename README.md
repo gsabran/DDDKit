@@ -4,16 +4,33 @@
 [![License](https://img.shields.io/cocoapods/l/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 [![Platform](https://img.shields.io/cocoapods/p/DDDKit.svg?style=flat)](http://cocoapods.org/pods/DDDKit)
 
-## TLDR:
+An open source Swift (OpenGL backed) library for 3D rendering, with focus on video support.
 
-- A pure Swift 360 video player as a demo of this framework, with some fancy features such as color filters etc.
-- An open and reliable framework to handle 3D graphics with a focus on videos, Apple's SceneKit satisfying none of those two qualities.
-- A number of SceneKit's features are missing, but the one implemented are:
-  - An easy to use syntax and logic
-  - Elements that can have any shape / position
-  - Support of image and video textures
-  - Direct and easy access to shader's code, shaders modifiers.
-  - Focus on reliability on video texture support.
+## Example of use cases
+- generic 3D scene
+- 360 video player
+- photo / video filters within a 3D scene
+
+## Features
+- easy to use syntax and logic
+- elements that can have any shape / position
+- support of image and video textures
+- direct and easy access to shader's code, shaders modifiers -> easy to make image filters
+- focus on reliability on video support.
+
+## Not currently supported
+- physics
+- simple to create animations
+
+## Why not SceneKit?
+
+- SceneKit has bugs, such as memory leaks, failing video support (see [SO](http://stackoverflow.com/questions/39542205/ios10-scenekit-render-a-video-with-custom-shader)
+- no support of AVPlayerLayer / AVPlayer as video input
+- indirect video support (through SpriteKit)
+- openGL backed rendering failing on iOS 10
+- poor documentation
+- unresponsiveness from Apple on issues, and no timeline/transparency on fixes
+- no access to code to fix things yourself, since it's not open source.
 
 ## Documentation
 See the [wiki](https://github.com/gsabran/DDDKit/wiki)!
