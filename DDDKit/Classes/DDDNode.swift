@@ -83,6 +83,8 @@ public class DDDNode {
 
 		material.properties.forEach { prop in
 			prop.property.prepareToBeUsed(in: pool)
+		}
+		material.properties.forEach { prop in
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
 			if location != -1 {
 				prop.location = location
