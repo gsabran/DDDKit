@@ -45,6 +45,7 @@ open class DDDScene {
 			print("could not render scene: \(error)")
 		}
 	}
+
 	/**
 	Add a node to the scene
 	
@@ -52,5 +53,21 @@ open class DDDScene {
 	*/
 	public func add(node: DDDNode) {
 		nodes.insert(node)
+	}
+
+	/**
+	Remove a node from the scene
+
+	- Parameter node: the node to be removed
+	*/
+	public func remove(node: DDDNode) {
+		nodes.remove(node)
+	}
+
+	/**
+	Remove all nodes from the scene
+	*/
+	public func empty() {
+		nodes.removeAll()
 	}
 }
