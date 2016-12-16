@@ -19,6 +19,7 @@ public class DDDFloatProperty: DDDProperty {
 	*/
 	public init(_ value: CGFloat) {
 		self.value = Float(value)
+		super.init()
 	}
 	override func attach(at location: GLint) {
 		glUniform1f(location, value)

@@ -12,7 +12,7 @@ import UIKit
 A shader program that describes how object should look like.
 It's made of a vertex and fragment shaders
 */
-public class DDDShaderProgram: NSObject {
+public class DDDShaderProgram: DDDObject {
 	enum Uniforms {
 		case projection
 		case modelView
@@ -108,6 +108,7 @@ public class DDDShaderProgram: NSObject {
 	}
 
 	deinit {
+		EAGLContext.ensureContext(is: context)
 		if program != 0 {
 			glDeleteProgram(program);
 			program = 0;

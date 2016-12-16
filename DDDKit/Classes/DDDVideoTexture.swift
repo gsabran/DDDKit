@@ -8,9 +8,7 @@
 
 import AVFoundation
 /// Describes a video texture that can be used as a luma and chroma planes in a shader
-public class DDDVideoTexture {
-	private static var id: Int = 0
-	fileprivate var id: Int
+public class DDDVideoTexture: DDDObject {
 	let lumaPlane: DDDVideoPlaneTexture
 	let chromaPlane: DDDVideoPlaneTexture
 
@@ -21,7 +19,6 @@ public class DDDVideoTexture {
 
 	private let player: AVPlayer
 	private var videoItem: AVPlayerItem?
-	private var context: EAGLContext?
 	private var hasRetrivedBufferForCurrentVideoItem = false
 	/// A delegate that should be messaged when the texture's state changes
 	public weak var delegate: DDDVideoTextureDelegate?
@@ -32,10 +29,9 @@ public class DDDVideoTexture {
 	*/
 	public init(player: AVPlayer) {
 		self.player = player
-		DDDVideoTexture.id += 1
-		self.id = DDDVideoTexture.id.hashValue
 		lumaPlane = DDDVideoPlaneTexture()
 		chromaPlane = DDDVideoPlaneTexture()
+		super.init()
 
 		lumaPlane.videoTexture = self
 		chromaPlane.videoTexture = self
@@ -50,6 +46,7 @@ public class DDDVideoTexture {
 	}
 
 	deinit {
+		EAGLContext.ensureContext(is: context)
 		cleanUpTextures()
 	}
 
@@ -208,18 +205,6 @@ public class DDDVideoTexture {
 			return CVOpenGLESTextureGetName(lumaTexture)
 		}
 		return nil
-	}
-}
-
-extension DDDVideoTexture: Equatable {
-	public static func == (lhs: DDDVideoTexture, rhs: DDDVideoTexture) -> Bool {
-		return lhs === rhs
-	}
-}
-
-extension DDDVideoTexture: Hashable {
-	public var hashValue: Int {
-		return id
 	}
 }
 

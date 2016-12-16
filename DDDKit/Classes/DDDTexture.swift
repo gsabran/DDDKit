@@ -11,16 +11,17 @@ import CoreGraphics
 import OpenGLES
 import ImageIO
 
-class DDDTexture {
+class DDDTexture: DDDObject {
 	var id: GLuint
 	var width: GLsizei
 	var height: GLsizei
 
-	init() {
+	override init() {
 		id = 0
 		width = 0
 		height = 0
 		glGenTextures(1, &id)
+		super.init()
 	}
 
 	convenience init(image: CGImage) {
@@ -30,23 +31,24 @@ class DDDTexture {
 	}
 
 	deinit {
+		EAGLContext.ensureContext(is: context)
 		glDeleteTextures(1, &id)
 	}
 
-	func load(_ image: CGImage) -> Bool {
+	private func load(_ image: CGImage) -> Bool {
 		return load(image, antialias: false, flipVertical: false)
 	}
 
-	func load(_ image: CGImage, antialias: Bool) -> Bool {
+	private func load(_ image: CGImage, antialias: Bool) -> Bool {
 		return load(image, antialias: antialias, flipVertical: false)
 	}
 
-	func load(_ image: CGImage, flipVertical: Bool) -> Bool {
+	private func load(_ image: CGImage, flipVertical: Bool) -> Bool {
 		return load(image, antialias: false, flipVertical: flipVertical)
 	}
 
 	/// @return true on success
-	func load(_ image: CGImage, antialias: Bool, flipVertical: Bool) -> Bool {
+	private func load(_ image: CGImage, antialias: Bool, flipVertical: Bool) -> Bool {
 		let imageData = DDDTexture.Load(image, width: &width, height: &height, flipVertical: flipVertical)
 
 		glBindTexture(GLenum(GL_TEXTURE_2D), id)

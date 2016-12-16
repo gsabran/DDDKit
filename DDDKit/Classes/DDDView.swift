@@ -27,7 +27,12 @@ open class DDDViewController: UIViewController {
 
 	private var wasPaused = false
 	/// Wether the rendering computation should be skipped
-	public var isPaused = false
+	public var isPaused = false {
+		didSet {
+			// make sure flags are synced, in case this occurs when not visible
+			wasPaused = isPaused
+		}
+	}
 	/// Wether the rendering computation should restart after the view become active
 	public var resumeOnDidBecomeActive = true
 	/// The 3D scene to be displayed
@@ -59,6 +64,14 @@ open class DDDViewController: UIViewController {
 
 		initializeGL()
 		scene = DDDScene()
+	}
+
+	/// attach the next DDDKit calls to the controller
+	public func setAsCurrent() {
+		guard isViewLoaded else {
+			fatalError("Cannot set DDDViewController as current before is has loaded")
+		}
+		EAGLContext.ensureContext(is: context)
 	}
 
 	open override func viewDidAppear(_ animated: Bool) {
@@ -135,9 +148,8 @@ open class DDDViewController: UIViewController {
 
 	func render(displayLink: CADisplayLink) {
 		if isPaused { return }
-		if EAGLContext.current() !== context {
-			EAGLContext.setCurrent(context)
-		}
+
+		EAGLContext.ensureContext(is: context)
 		glClearColor(0, 0, 0, 1.0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))

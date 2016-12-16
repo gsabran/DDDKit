@@ -10,15 +10,8 @@ import Foundation
 import OpenGLES
 
 /// A property (uniform) that can be used in a shader program
-public class DDDProperty {
-	private static var id: Int = 0
-	fileprivate var id: Int
+public class DDDProperty: DDDObject {
 	var willBeUsedAtNextDraw = false
-
-	init() {
-		DDDProperty.id += 1
-		self.id = DDDProperty.id.hashValue
-	}
 
 	private var hasLoaded = false
 	final func loadIfNotLoaded(context: EAGLContext) {
@@ -33,16 +26,4 @@ public class DDDProperty {
 	func attach(at location: GLint) {}
 
 	func isReadyToBeUsed() -> Bool { return true }
-}
-
-extension DDDProperty: Equatable {
-	public static func == (lhs: DDDProperty, rhs: DDDProperty) -> Bool {
-		return lhs === rhs
-	}
-}
-
-extension DDDProperty: Hashable {
-	public var hashValue: Int {
-		return id
-	}
 }

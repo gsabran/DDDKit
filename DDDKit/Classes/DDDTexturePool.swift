@@ -9,15 +9,21 @@
 import Foundation
 import OpenGLES
 
-class DDDTexturePool {
+class DDDTexturePool: DDDObject {
 	private var slots: [DDDTextureSlot]
 	private var availableSlots: [Int]
+	static var poolId = 0
+	let id: Int
 
-	init() {
+	override init() {
+		id = DDDTexturePool.poolId
+		DDDTexturePool.poolId += 1
 		var maxNumberOfTextures = GLint()
 		glGetIntegerv(GLenum(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS), &maxNumberOfTextures)
 		availableSlots = [Int]()
 		slots = [DDDTextureSlot]()
+
+		super.init()
 
 		(0..<Int(maxNumberOfTextures)).reversed().forEach { i in
 			slots.append(DDDTextureSlot(index: slots.count, pool: self))

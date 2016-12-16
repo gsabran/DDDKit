@@ -28,6 +28,7 @@ public class DDDImageTexture: DDDProperty {
 	}
 
 	deinit {
+		EAGLContext.ensureContext(is: context)
 		slot?.release()
 	}
 
@@ -43,7 +44,7 @@ public class DDDImageTexture: DDDProperty {
 
 	override func attach(at location: GLint) {
 		guard let texture = texture, let slot = slot else { return }
-		if slot === lastSlotUsed && locationsAlreadySet.contains(location) { return } // avoid expensive texture binding
+		//		if slot === lastSlotUsed && locationsAlreadySet.contains(location) { return } // avoid expensive texture binding
 
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)

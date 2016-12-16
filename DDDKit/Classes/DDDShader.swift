@@ -15,7 +15,7 @@ public enum DDDShaderType {
 	/// a shader describing framgment level computations (expensives)
 	case fragment
 }
-public class DDDShader {
+public class DDDShader: DDDObject {
 	var shaderReference = GLuint()
 	/// the type of the shader. Either vertex or fragment
 	public let type: DDDShaderType
@@ -45,6 +45,7 @@ public class DDDShader {
 	}
 
 	deinit {
+		EAGLContext.ensureContext(is: context)
 		if shaderReference != 0 {
 			glDeleteShader(shaderReference);
 		}
@@ -58,8 +59,8 @@ public class DDDShader {
 		let glType = type == .vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER
 		shader.pointee = glCreateShader(GLenum(glType))
 		if shader.pointee == 0 {
-			NSLog("OpenGLView compileShader():  glCreateShader failed")
-			NSLog("Shader is:\n\(String(code))")
+			print("OpenGLView compileShader():  glCreateShader failed")
+			print("Shader is:\n\(String(code))")
 			throw DDDError.shaderFailedToCompile
 		}
 
@@ -75,8 +76,8 @@ public class DDDShader {
 			var infoLogLength = GLsizei()
 
 			glGetShaderInfoLog(shader.pointee, GLsizei(MemoryLayout<GLchar>.size * 256), &infoLogLength, infoLog)
-			NSLog("OpenGLView compileShader():  glCompileShader() failed:  %@", String(cString: infoLog))
-			NSLog("Shader is \(String(code))")
+			print("OpenGLView compileShader():  glCompileShader() failed:  \(String(cString: infoLog))")
+			print("Shader is \(String(code))")
 
 			infoLog.deallocate(capacity: 256)
 			throw DDDError.shaderFailedToCompile

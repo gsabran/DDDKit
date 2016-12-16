@@ -12,9 +12,23 @@ import OpenGLES
 class DDDVideoPlaneTexture: DDDProperty {
 	fileprivate(set) weak var slot: DDDTextureSlot?
 	weak var videoTexture: DDDVideoTexture?
-	var hasReceivedData = false
+	var hasReceivedData = false {
+		didSet {
+			hasReceivedNewData = hasReceivedData
+		}
+	}
+	var hasReceivedNewData = false
+	static var count = 0
+	let id: Int
+
+	override init() {
+		id = DDDVideoPlaneTexture.count
+		DDDVideoPlaneTexture.count += 1
+		super.init()
+	}
 
 	deinit {
+		EAGLContext.ensureContext(is: context)
 		slot?.release()
 	}
 
@@ -35,10 +49,13 @@ class DDDVideoPlaneTexture: DDDProperty {
 	}
 
 	override func attach(at location: GLint) {
+//		guard let slot = slot, let textureId = videoTexture?.textureId(for: self), hasReceivedNewData else { return }
+
 		guard let slot = slot, let textureId = videoTexture?.textureId(for: self) else { return }
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), textureId)
 		glUniform1i(location, slot.id)
+		hasReceivedNewData = false
 	}
 }
 
