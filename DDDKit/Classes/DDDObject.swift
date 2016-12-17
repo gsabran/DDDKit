@@ -8,10 +8,8 @@
 
 /// generic class for GL Object
 public class DDDObject: NSObject {
-	let context: EAGLContext?
 
 	override init() {
-		context = EAGLContext.current()
 		super.init()
 	}
 }

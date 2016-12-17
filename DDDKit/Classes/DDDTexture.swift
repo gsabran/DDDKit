@@ -31,7 +31,6 @@ class DDDTexture: DDDObject {
 	}
 
 	deinit {
-		EAGLContext.ensureContext(is: context)
 		glDeleteTextures(1, &id)
 	}
 
@@ -50,6 +49,7 @@ class DDDTexture: DDDObject {
 	/// @return true on success
 	private func load(_ image: CGImage, antialias: Bool, flipVertical: Bool) -> Bool {
 		let imageData = DDDTexture.Load(image, width: &width, height: &height, flipVertical: flipVertical)
+
 
 		glBindTexture(GLenum(GL_TEXTURE_2D), id)
 

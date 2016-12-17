@@ -28,7 +28,6 @@ public class DDDImageTexture: DDDProperty {
 	}
 
 	deinit {
-		EAGLContext.ensureContext(is: context)
 		slot?.release()
 	}
 
@@ -36,23 +35,24 @@ public class DDDImageTexture: DDDProperty {
 		texture = DDDTexture(image: image)
 	}
 
-	override func prepareToBeUsed(in pool: DDDTexturePool) {
+	override func prepareToBeUsed(in pool: DDDTexturePool) -> Bool {
 		if slot == nil {
 			slot = pool.getNewTextureSlot(for: self)
 		}
+		return false
 	}
 
 	override func attach(at location: GLint) {
 		guard let texture = texture, let slot = slot else { return }
-		//		if slot === lastSlotUsed && locationsAlreadySet.contains(location) { return } // avoid expensive texture binding
-
-		glActiveTexture(slot.glId)
-		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)
-		glUniform1i(location, slot.id)
+		if slot === lastSlotUsed && locationsAlreadySet.contains(location) { return } // avoid expensive texture binding
 
 		lastSlotUsed = slot
 		locationsAlreadySet.removeAll()
 		locationsAlreadySet.insert(location)
+
+		glActiveTexture(slot.glId)
+		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)
+		glUniform1i(location, slot.id)
 	}
 }
 

@@ -21,7 +21,6 @@ public class DDDMaterial {
 	public var shaderProgram: DDDShaderProgram? {
 		didSet {
 			guard let program = shaderProgram else { return }
-
 			properties.forEach { prop in
 				// reattach the property to a uniform
 				prop.location = program.indexFor(uniformNamed: prop.locationName)
@@ -123,13 +122,7 @@ public class DDDMaterial {
 	- Parameter key: the name of the key where the property is currently set
 	*/
 	public func removeProperty(for key: String) {
-		var toBeRemoved = [DDDProgramProperty]()
-		properties.forEach { prop in
-			if prop.locationName == key {
-				toBeRemoved.append(prop)
-			}
-		}
-		toBeRemoved.forEach { prop in
+		properties.filter({ return $0.locationName == key }).forEach { prop in
 			properties.remove(prop)
 		}
 	}

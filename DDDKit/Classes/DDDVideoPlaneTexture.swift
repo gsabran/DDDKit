@@ -28,7 +28,6 @@ class DDDVideoPlaneTexture: DDDProperty {
 	}
 
 	deinit {
-		EAGLContext.ensureContext(is: context)
 		slot?.release()
 	}
 
@@ -41,17 +40,17 @@ class DDDVideoPlaneTexture: DDDProperty {
 		super.dddWorldHasLoaded(context: context)
 	}
 
-	override func prepareToBeUsed(in pool: DDDTexturePool)  {
+	override func prepareToBeUsed(in pool: DDDTexturePool) -> Bool {
 		if slot == nil {
 			slot = pool.getNewTextureSlot(for: self)
 		}
-		videoTexture?.prepareToBeUsed()
+		guard let videoTexture = videoTexture else { return false }
+		return videoTexture.prepareToBeUsed()
 	}
 
 	override func attach(at location: GLint) {
-//		guard let slot = slot, let textureId = videoTexture?.textureId(for: self), hasReceivedNewData else { return }
 
-		guard let slot = slot, let textureId = videoTexture?.textureId(for: self) else { return }
+		guard let slot = slot, let textureId = videoTexture?.textureId(for: self), hasReceivedNewData else { return }
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), textureId)
 		glUniform1i(location, slot.id)

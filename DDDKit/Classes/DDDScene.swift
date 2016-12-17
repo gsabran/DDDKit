@@ -15,7 +15,7 @@ open class DDDScene {
 
 	init() {}
 
-	func render(with projection: Mat4, context: EAGLContext, in pool: DDDTexturePool) {
+	func render(with projection: Mat4, context: EAGLContext, in pool: DDDTexturePool) -> Bool {
 		do {
 			var properties = Set<DDDProperty>()
 			var programs = [DDDShaderProgram: [DDDNode]]()
@@ -32,18 +32,22 @@ open class DDDScene {
 				prop.loadIfNotLoaded(context: context)
 			}
 
-			try programs.keys.forEach { program in
-				guard let nodes = programs[program] else { return }
-				program.use()
-				try nodes.forEach { node in
-					try node.willRender(context: context)
-					node.render(with: projection, pool: pool)
-					node.didRender()
+			for program in programs.keys {
+				if let nodes = programs[program] {
+					program.use()
+					for node in nodes {
+						try node.willRender(context: context)
+						if node.render(with: projection, pool: pool) {
+							return true
+						}
+						node.didRender()
+					}
 				}
 			}
 		} catch {
 			print("could not render scene: \(error)")
 		}
+		return false
 	}
 
 	/**

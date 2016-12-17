@@ -45,7 +45,6 @@ public class DDDShader: DDDObject {
 	}
 
 	deinit {
-		EAGLContext.ensureContext(is: context)
 		if shaderReference != 0 {
 			glDeleteShader(shaderReference);
 		}

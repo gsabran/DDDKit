@@ -46,20 +46,22 @@ public class DDDVideoTexture: DDDObject {
 	}
 
 	deinit {
-		EAGLContext.ensureContext(is: context)
 		cleanUpTextures()
 	}
 
-	func prepareToBeUsed() {
-		guard let videoItem = player.currentItem else { return }
+	func prepareToBeUsed() -> Bool {
+		guard let videoItem = player.currentItem else { return false }
 		if self.videoItem !== videoItem {
 			hasRetrivedBufferForCurrentVideoItem = false
 		}
 		let hadRetrivedBufferForCurrentVideoItem = hasRetrivedBufferForCurrentVideoItem
 		refreshTexture()
 		if hasRetrivedBufferForCurrentVideoItem && !hadRetrivedBufferForCurrentVideoItem {
-			delegate?.videoItemWillRenderForFirstTimeAtNextFrame()
+			if delegate?.videoItemWillRenderForFirstTimeAtNextFrame() == true {
+				return true
+			}
 		}
+		return false
 	}
 
 	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
@@ -211,8 +213,10 @@ public class DDDVideoTexture: DDDObject {
 public protocol DDDVideoTextureDelegate: class {
 	/**
 	When a video item has received data and can be drawn at the next rendering pass
+
+	- Return: wether the scene should be recomputed before drawing
 	*/
-	func videoItemWillRenderForFirstTimeAtNextFrame()
+	func videoItemWillRenderForFirstTimeAtNextFrame() -> Bool
 
 	/**
 	Report that something unexpected happened

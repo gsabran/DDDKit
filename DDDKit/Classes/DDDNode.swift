@@ -77,12 +77,15 @@ public class DDDNode {
 	
 	- Parameter with: the projection that should be used
     - Parameter pool: the pool of texture slots where texture can be attached
+	- Return: wether scene computation should restart
 	*/
-	func render(with projection: Mat4, pool: DDDTexturePool) {
-		guard let program = material.shaderProgram else { return }
+	func render(with projection: Mat4, pool: DDDTexturePool) -> Bool {
+		guard let program = material.shaderProgram else { return false }
 
-		material.properties.forEach { prop in
-			prop.property.prepareToBeUsed(in: pool)
+		for prop in material.properties {
+			if prop.property.prepareToBeUsed(in: pool) {
+				return true
+			}
 		}
 		material.properties.forEach { prop in
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
@@ -99,15 +102,16 @@ public class DDDNode {
 				shouldDraw = false
 			}
 		}
-		guard shouldDraw else { return }
+		guard shouldDraw else { return false }
 
 		material.set(mat4: GLKMatrix4(projection), for: "u_projection")
 		material.set(mat4: GLKMatrix4(modelView), for: "u_modelview")
 		let vertexBufferOffset = UnsafeRawPointer(bitPattern: 0)
-		guard let geometry = geometry else { return }
+		guard let geometry = geometry else { return false }
 		geometry.setUpIfNotAlready(for: program)
 		geometry.prepareToUse()
 		glDrawElements(GLenum(GL_TRIANGLES), GLsizei(geometry.indices.count), GLenum(GL_UNSIGNED_SHORT), vertexBufferOffset);
+		return false
 	}
 
 

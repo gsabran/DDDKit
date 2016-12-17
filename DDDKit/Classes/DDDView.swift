@@ -142,32 +142,33 @@ open class DDDViewController: UIViewController {
 	deinit {
 		NotificationCenter.default.removeObserver(self)
 		DDDViewController.count -= 1
-		print("deinit DDDViewController")
 	}
 
 
 	func render(displayLink: CADisplayLink) {
 		if isPaused { return }
+		EAGLContext.ensureContext(is: self.context)
+		delegate?.willRender(sender: self)
+		self.computeRendering()
+	}
 
-		EAGLContext.ensureContext(is: context)
+	private func computeRendering() {
 		glClearColor(0, 0, 0, 1.0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
-		glViewport(0, 0, GLsizei(view.frame.size.width), GLsizei(view.frame.size.height))
-		shouldRender()
-		context.presentRenderbuffer(Int(GL_RENDERBUFFER))
-	}
+		glViewport(0, 0, GLsizei(self.view.frame.size.width), GLsizei(self.view.frame.size.height))
 
-	private func shouldRender() {
 		guard let scene = scene, let texturesPool = texturesPool else { return }
-
-		delegate?.willRender(sender: self)
 
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 
 		let aspect = Float(fabs(view.frame.width / view.frame.height))
 		let projection = GLKMatrix4MakePerspective(cameraOverture, aspect, 0.1, 400.0)
-		scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool)
+		if scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool) {
+			return computeRendering()
+		}
+
+		self.context.presentRenderbuffer(Int(GL_RENDERBUFFER))
 	}
 
 	@objc private func applicationWillResignActive() {
