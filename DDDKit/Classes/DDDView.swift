@@ -25,16 +25,9 @@ open class DDDViewController: UIViewController {
 	fileprivate var colorRenderBuffer = GLuint()
 	fileprivate var depthRenderBuffer = GLuint()
 
-	private var wasPaused = false
+	private var isVisible = false
 	/// Wether the rendering computation should be skipped
-	public var isPaused = false {
-		didSet {
-			// make sure flags are synced, in case this occurs when not visible
-			wasPaused = isPaused
-		}
-	}
-	/// Wether the rendering computation should restart after the view become active
-	public var resumeOnDidBecomeActive = true
+	public var isPaused = false
 	/// The 3D scene to be displayed
 	public internal(set) var scene: DDDScene!
 	/// An optional delegate
@@ -146,7 +139,7 @@ open class DDDViewController: UIViewController {
 
 
 	func render(displayLink: CADisplayLink) {
-		if isPaused { return }
+		if isPaused || !isVisible { return }
 		EAGLContext.ensureContext(is: self.context)
 		delegate?.willRender(sender: self)
 		self.computeRendering()
@@ -180,12 +173,11 @@ open class DDDViewController: UIViewController {
 	}
 
 	private func prepareToDisappear() {
-		wasPaused = isPaused
-		isPaused = true
+		isVisible = false
 	}
 
 	private func hasAppeared() {
-		isPaused = wasPaused || !resumeOnDidBecomeActive
+		isVisible = true
 	}
 }
 
