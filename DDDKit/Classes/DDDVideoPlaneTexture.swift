@@ -50,7 +50,7 @@ class DDDVideoPlaneTexture: DDDProperty {
 
 	override func attach(at location: GLint) {
 
-		guard let slot = slot, let textureId = videoTexture?.textureId(for: self), hasReceivedNewData else { return }
+		guard let slot = slot, let textureId = videoTexture?.textureId(for: self) else { return }
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), textureId)
 		glUniform1i(location, slot.id)
