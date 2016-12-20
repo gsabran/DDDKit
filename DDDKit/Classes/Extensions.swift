@@ -16,3 +16,24 @@ extension EAGLContext {
 		}
 	}
 }
+
+public extension GLKQuaternion {
+	/**
+	Initialize a quaternion from a vertical and horizontal rotations, in radian
+	- parameter right: the horizontal angle in radian
+	- parameter top: the vertical angle in radian
+	*/
+	public init(right: CGFloat, top: CGFloat) {
+		let ch = Float(cos(right / 2))
+		let sh = Float(sin(right / 2))
+		let cv = Float(cos(top / 2))
+		let sv = Float(sin(top / 2))
+
+		self.init(q: (
+			sv * ch,
+			cv * sh,
+			-sv * sh,
+			cv * ch
+		))
+	}
+}

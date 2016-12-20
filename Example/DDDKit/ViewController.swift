@@ -196,12 +196,15 @@ class ViewController: DDDViewController {
 		view.addGestureRecognizer(panGesture)
 	}
 
-	private var angle: Float = 0.0
+	private var hAngle: CGFloat = 0.0
+	private var vAngle: CGFloat = 0.0
 	@objc private func didPan(sender: UIPanGestureRecognizer) {
 		guard let view = sender.view else { return }
 		let vector = sender.translation(in: view)
-		angle += -Float(vector.x / view.frame.width / 5)
-		videoNode.rotation = Quat(x: 0, y: sin(angle), z: 0, w: cos(angle))
+		hAngle += -CGFloat(vector.x / view.frame.width / 5)
+		vAngle += CGFloat(vector.y / view.frame.height / 10)
+		let q = GLKQuaternionInvert(GLKQuaternion(right: hAngle, top: vAngle)).q
+		videoNode.rotation = Quat(x: q.0, y: q.1, z: q.2, w: q.3)
 	}
 }
 
