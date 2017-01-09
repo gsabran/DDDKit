@@ -11,6 +11,9 @@ import OpenGLES
 
 /// A property (uniform) that can be used in a shader program
 public class DDDProperty: DDDObject {
+	/// wether this property is actively used (if so, it might block rendering if it has not loaded yet)
+	public var isActive = true
+
 	var willBeUsedAtNextDraw = false
 
 	private var hasLoaded = false

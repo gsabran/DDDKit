@@ -98,7 +98,7 @@ public class DDDNode {
 		var shouldDraw = true
 
 		material.properties.forEach { prop in
-			if !prop.property.isReadyToBeUsed() {
+			if !prop.property.isReadyToBeUsed() && prop.property.isActive {
 				shouldDraw = false
 			}
 		}

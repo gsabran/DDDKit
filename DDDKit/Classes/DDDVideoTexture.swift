@@ -9,6 +9,13 @@
 import AVFoundation
 /// Describes a video texture that can be used as a luma and chroma planes in a shader
 public class DDDVideoTexture: DDDObject {
+	/// wether this texture is actively used (if so, it might block rendering if it has not loaded yet)
+	public var isActive = true {
+		didSet {
+			lumaPlane.isActive = isActive
+			chromaPlane.isActive = isActive
+		}
+	}
 	let lumaPlane: DDDVideoPlaneTexture
 	let chromaPlane: DDDVideoPlaneTexture
 
@@ -17,7 +24,7 @@ public class DDDVideoTexture: DDDObject {
 	private var videoTextureCache: CVOpenGLESTextureCache?
 	private var videoOutput: AVPlayerItemVideoOutput?
 
-	private let player: AVPlayer
+	private let player: VideoPlayer
 	private var videoItem: AVPlayerItem?
 	private var hasRetrivedBufferForCurrentVideoItem = false
 	/// A delegate that should be messaged when the texture's state changes
@@ -27,7 +34,7 @@ public class DDDVideoTexture: DDDObject {
 	
 	- Parameter player: the player that controls the video to be displayed
 	*/
-	public init(player: AVPlayer) {
+	public init(player: VideoPlayer) {
 		self.player = player
 		lumaPlane = DDDVideoPlaneTexture()
 		chromaPlane = DDDVideoPlaneTexture()
@@ -223,3 +230,9 @@ public protocol DDDVideoTextureDelegate: class {
 	*/
 	func hasCaughtError(error: DDDError)
 }
+
+public protocol VideoPlayer {
+	var currentItem: AVPlayerItem? { get }
+}
+
+extension AVPlayer: VideoPlayer {}
