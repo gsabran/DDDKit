@@ -22,11 +22,11 @@ Pod::Spec.new do |s|
   Currently, DDDKit focuses on implementing video related features, that are extremely buggy in SceneKit
                        DESC
 
-  s.homepage         = 'https://github.com/gsabran/DDDKit'
+  s.homepage         = 'https://github.com/team-pie/DDDKit'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Guillaume Sabran' => 'sabranguillaume@gmail.com' }
-  s.source           = { :git => 'https://github.com/gsabran/DDDKit.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/team-pie/DDDKit.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '8.0'
