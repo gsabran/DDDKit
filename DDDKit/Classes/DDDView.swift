@@ -141,8 +141,9 @@ open class DDDViewController: UIViewController {
 	func render(displayLink: CADisplayLink) {
 		if isPaused || !isVisible { return }
 		EAGLContext.ensureContext(is: self.context)
-		delegate?.willRender(sender: self)
+		delegate?.willRender?(sender: self)
 		self.computeRendering()
+		delegate?.didRender?(sender: self)
 	}
 
 	private func computeRendering() {
@@ -190,10 +191,11 @@ class DDDView: UIView {
 }
 
 /// An object that responds to scene rendering state change
-public protocol DDDSceneDelegate: class {
+@objc public protocol DDDSceneDelegate: class {
 	/**
 	Called before the scene renders.
 	It's a good place to move objects, change properties etc.
 	*/
-	func willRender(sender: DDDViewController)
+	@objc optional func willRender(sender: DDDViewController)
+	@objc optional func didRender(sender: DDDViewController)
 }
