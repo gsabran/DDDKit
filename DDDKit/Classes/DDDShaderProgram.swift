@@ -79,14 +79,12 @@ public class DDDShaderProgram: DDDObject {
 		self.originalVertexShader = String(vertex.originalCode)
 		self.originalFragmentShader = String(fragment.originalCode)
 
-		if let modifiers = shaderModifiers {
-			if let vModifier = modifiers[.geometry] {
-				DDDShaderProgram.addShaderModifier(to: vertex, modifier: vModifier)
-			}
-			if let fModifier = modifiers[.fragment] {
-				DDDShaderProgram.addShaderModifier(to: fragment, modifier: fModifier)
-			}
-		}
+		let vModifier = shaderModifiers?[.geometry] ?? ""
+		DDDShaderProgram.addShaderModifier(to: vertex, modifier: vModifier)
+
+		let fModifier = shaderModifiers?[.fragment] ?? ""
+		DDDShaderProgram.addShaderModifier(to: fragment, modifier: fModifier)
+
 		try vertex.compile()
 		try fragment.compile()
 

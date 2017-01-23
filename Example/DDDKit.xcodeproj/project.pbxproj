@@ -14,11 +14,6 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		6F650D791DFF56BA00EAD693 /* bw.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F650D781DFF56BA00EAD693 /* bw.fsh */; };
-		6F650D7B1DFF5BA300EAD693 /* blur.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F650D7A1DFF5BA300EAD693 /* blur.fsh */; };
-		6F650D7F1DFF675600EAD693 /* moving-bw.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F650D7E1DFF675600EAD693 /* moving-bw.fsh */; };
-		6F965F921DA2027B0075A36D /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F901DA2027B0075A36D /* Shader.fsh */; };
-		6F965F931DA2027B0075A36D /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 6F965F911DA2027B0075A36D /* Shader.vsh */; };
 		BA549D0F393C77AF0B3F59F7 /* Pods_DDDKit_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF38EB7E9F1B634ADF2BEB2F /* Pods_DDDKit_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -44,11 +39,6 @@
 		607FACE51AFB9204008FA782 /* DDDKit_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DDDKit_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		6F650D781DFF56BA00EAD693 /* bw.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = bw.fsh; sourceTree = "<group>"; };
-		6F650D7A1DFF5BA300EAD693 /* blur.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = blur.fsh; sourceTree = "<group>"; };
-		6F650D7E1DFF675600EAD693 /* moving-bw.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = "moving-bw.fsh"; sourceTree = "<group>"; };
-		6F965F901DA2027B0075A36D /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
-		6F965F911DA2027B0075A36D /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
 		9589DB43EAA949764871609E /* Pods-DDDKit_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DDDKit_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DDDKit_Example/Pods-DDDKit_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		96739BBF70DB308E60E51CD2 /* Pods-DDDKit_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DDDKit_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DDDKit_Tests/Pods-DDDKit_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		A70B75B225C9B9E9EA0A93D3 /* Pods_DDDKit_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DDDKit_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -117,11 +107,6 @@
 		607FACD31AFB9204008FA782 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				6F965F901DA2027B0075A36D /* Shader.fsh */,
-				6F965F911DA2027B0075A36D /* Shader.vsh */,
-				6F650D781DFF56BA00EAD693 /* bw.fsh */,
-				6F650D7A1DFF5BA300EAD693 /* blur.fsh */,
-				6F650D7E1DFF675600EAD693 /* moving-bw.fsh */,
 				607FACD41AFB9204008FA782 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -265,11 +250,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F650D7B1DFF5BA300EAD693 /* blur.fsh in Resources */,
-				6F650D791DFF56BA00EAD693 /* bw.fsh in Resources */,
-				6F650D7F1DFF675600EAD693 /* moving-bw.fsh in Resources */,
-				6F965F921DA2027B0075A36D /* Shader.fsh in Resources */,
-				6F965F931DA2027B0075A36D /* Shader.vsh in Resources */,
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
