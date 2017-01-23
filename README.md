@@ -42,40 +42,26 @@ pod 'DDDKit'
 ### 360 video
 ```swift
 import DDDKit
+import AVFoundation
 
-class Player360: DDDViewController {
-  var player: AVPlayer!
+class ViewController: DDD360VideoViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-
-    var videoNode = DDDNode()
-    videoNode.geometry = DDDGeometry.Sphere(radius: 20.0, orientation: .inward)
-
-    do {
-      // set the shared to handle the video input on the 3D scene
-      let fShader = try DDDFragmentShader(fromResource: "Shader", withExtention: "fsh")
-      let program = try DDDShaderProgram(fragment: fShader)
-      videoNode.material.shaderProgram = program
-
-      let videoTexture = DDDVideoTexture(player: player)
-      videoNode.material.set(property: videoTexture, for: "SamplerY", and: "SamplerUV")
-    } catch {
-      print("could not set shaders: \(error)")
-    }
-
-    scene?.add(node: videoNode)
-    videoNode.position = Vec3(v: (0, 0, -30))
+    show(from: URL(string: myVideoURL)!)
   }
 }
+
 ```
 ### Image filter (easy to be creative!)
 ```swift
 // B&W filter:
-// let program = try DDDShaderProgram(fragment: fShader)
-let program = try DDDShaderProgram(fragment: fShader, shaderModifiers: [
-  .fragment: "gl_FragColor = vec4((col.x + col.y + col.z) / 3.0, 1.0);"
-]))
+@IBAction func didPressBW(_ sender: Any) {
+  let program = try! DDDShaderProgram(fragment: defaultShader, shaderModifiers: [
+    .fragment: "gl_FragColor = vec4(vec3(gl_FragColor.x + gl_FragColor.y + gl_FragColor.z) / 3.0, 1.0);",
+  ])
+  videoNode.material.shaderProgram = program
+}
 ```
 
 ### Screenshots from the demo app:
