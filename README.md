@@ -47,6 +47,17 @@ class ViewController: DDD360VideoViewController {
 }
 ```
 
+### 360 [cubic](https://github.com/facebook/transform360) projection
+```swift
+node.geometry = DDDGeometry.Cube()
+let videoTexture = DDDVideoTexture(player: player) // AVPlayer with 360 cubic video
+node.material.set(
+  property: videoTexture,
+  for: "SamplerY",
+  and: "SamplerUV"
+)
+```
+
 ### Screenshots from the demo app:
 ![output](https://cloud.githubusercontent.com/assets/12446975/21338384/c63da03c-c62a-11e6-97ae-6f6f06648f27.gif)
 ![output](https://cloud.githubusercontent.com/assets/12446975/21338658/fec8b854-c62c-11e6-8750-cd52c2924051.gif)
