@@ -42,7 +42,7 @@ class ViewController: DDD360VideoViewController {
 @IBAction func didPressBW(_ sender: Any) {
   let program = try! DDDShaderProgram(fragment: defaultShader, shaderModifiers: [
     .fragment: "gl_FragColor = vec4(vec3(gl_FragColor.x + gl_FragColor.y + gl_FragColor.z) / 3.0, 1.0);",
-  ])myVideoURL
+  ])
   videoNode.material.shaderProgram = program
 }
 ```
