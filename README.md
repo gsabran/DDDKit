@@ -13,33 +13,14 @@ An open source library to support 360 videos and pictures. It's designed as a ge
 - generic 3D scene
 - photo / video filters within a 3D scene
 
-## Features
-- easy to use syntax and logic
-- support of image and video textures
-- direct and easy access to shader's code, shaders modifiers -> easy to make image filters
-- focus on reliability on video support.
-- equirectangular and cubic 360 support
-- elements that can have any shape / position
-
-## Why not SceneKit?
-
-- SceneKit has bugs, such as memory leaks, failing video support (see [SO](http://stackoverflow.com/questions/39542205/ios10-scenekit-render-a-video-with-custom-shader))
-- no support of AVPlayerLayer / AVPlayer as video input
-- indirect video support (through SpriteKit)
-- openGL backed rendering failing on iOS 10
-- poor documentation
-- unresponsiveness from Apple on issues, and no timeline/transparency on fixes
-- no access to code to fix things yourself, since it's not open source.
-
 ## Installation
 See the [wiki](https://github.com/team-pie/DDDKit/wiki/Installation)! or:
 ```
 pod 'DDDKit'
 ```
 
-## Example
 
-### 360 video
+### Quickstart
 ```swift
 import DDDKit
 import AVFoundation
@@ -53,6 +34,8 @@ class ViewController: DDD360VideoViewController {
 }
 
 ```
+
+## Example
 ### Image filter (easy to be creative!)
 ```swift
 // B&W filter:
@@ -70,6 +53,25 @@ class ViewController: DDD360VideoViewController {
 
 ## Documentation
 See the [wiki](https://github.com/gsabran/DDDKit/wiki)!
+
+
+## Features
+- easy to use syntax and logic
+- support of image and video textures
+- direct and easy access to shader's code, shaders modifiers -> easy to make image filters
+- focus on reliability on video support.
+- equirectangular and cubic 360 support
+- elements that can have any shape / position
+
+## Why not SceneKit?
+
+- SceneKit has bugs, such as memory leaks, failing video support (see [SO](http://stackoverflow.com/questions/39542205/ios10-scenekit-render-a-video-with-custom-shader))
+- no support of AVPlayerLayer / AVPlayer as video input
+- indirect video support (through SpriteKit)
+- openGL backed rendering failing on iOS 10
+- poor documentation
+- unresponsiveness from Apple on issues, and no timeline/transparency on fixes
+- no access to code to fix things yourself, since it's not open source.
 
 ## Author
 
