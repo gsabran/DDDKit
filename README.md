@@ -63,7 +63,7 @@ node.material.set(
 ![output](https://cloud.githubusercontent.com/assets/12446975/21338658/fec8b854-c62c-11e6-8750-cd52c2924051.gif)
 
 ## Documentation
-See the [wiki](https://github.com/gsabran/DDDKit/wiki)!
+See the [wiki](https://github.com/team-pie/DDDKit/wiki)!
 
 
 ## Features
