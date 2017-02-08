@@ -77,14 +77,6 @@ open class DDDViewController: UIViewController {
 		super.viewWillDisappear(animated)
 	}
 
-	open override func willMove(toParentViewController parent: UIViewController?) {
-		if parent == nil {
-			displayLink?.invalidate()
-			displayLink = nil
-		}
-		super.willMove(toParentViewController: parent)
-	}
-
 	open override func canPerformUnwindSegueAction(_ action: Selector, from
 		fromViewController: UIViewController, withSender sender: Any) -> Bool {
 		return false
@@ -95,11 +87,6 @@ open class DDDViewController: UIViewController {
 		glGenRenderbuffers(1, &depthRenderBuffer);
 		glBindRenderbuffer(GLenum(GL_RENDERBUFFER), depthRenderBuffer);
 		glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT16), GLsizei(view.frame.size.width), GLsizei(view.frame.size.height))
-
-		// display link
-		let displayLink = CADisplayLink(target: self, selector: #selector(DDDViewController.render(displayLink:)))
-		displayLink.add(to: RunLoop.current, forMode: RunLoopMode(rawValue: RunLoopMode.defaultRunLoopMode.rawValue))
-		self.displayLink = displayLink
 
 		// render buffer
 		glGenRenderbuffers(1, &colorRenderBuffer)
@@ -175,10 +162,19 @@ open class DDDViewController: UIViewController {
 
 	private func prepareToDisappear() {
 		isVisible = false
+		displayLink?.invalidate()
+		displayLink = nil
 	}
 
 	private func hasAppeared() {
 		isVisible = true
+
+		self.displayLink?.invalidate()
+		self.displayLink = nil
+
+		let displayLink = CADisplayLink(target: self, selector: #selector(DDDViewController.render(displayLink:)))
+		displayLink.add(to: RunLoop.current, forMode: RunLoopMode(rawValue: RunLoopMode.defaultRunLoopMode.rawValue))
+		self.displayLink = displayLink
 	}
 }
 
