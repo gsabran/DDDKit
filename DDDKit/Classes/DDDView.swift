@@ -53,7 +53,7 @@ open class DDDViewController: UIViewController {
 			print("could not set eagl context")
 		}
 		eagllayer = sceneView.layer as! CAEAGLLayer
-		eagllayer.isOpaque = true
+		eagllayer.isOpaque = false
 
 		initializeGL()
 		scene = DDDScene()
@@ -134,7 +134,7 @@ open class DDDViewController: UIViewController {
 	}
 
 	private func computeRendering() {
-		glClearColor(0, 0, 0, 1.0)
+		glClearColor(0, 0, 0, 0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
 		glViewport(0, 0, GLsizei(self.view.frame.size.width), GLsizei(self.view.frame.size.height))
