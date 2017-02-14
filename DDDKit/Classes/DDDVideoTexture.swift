@@ -64,7 +64,7 @@ public class DDDVideoTexture: DDDObject {
 		let hadRetrivedBufferForCurrentVideoItem = hasRetrivedBufferForCurrentVideoItem
 		refreshTexture()
 		if hasRetrivedBufferForCurrentVideoItem && !hadRetrivedBufferForCurrentVideoItem {
-			if delegate?.videoItemWillRenderForFirstTimeAtNextFrame() == true {
+			if delegate?.videoItemWillRenderForFirstTimeAtNextFrame(sender: self) == true {
 				return true
 			}
 		}
@@ -90,7 +90,7 @@ public class DDDVideoTexture: DDDObject {
 		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
 		let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
 		if buffer == nil {
-			delegate?.hasCaughtError(error: DDDError.failedToGetVideoBuffer)
+			delegate?.hasCaughtError(sender: self, error: DDDError.failedToGetVideoBuffer)
 		}
 		return buffer
 	}
@@ -223,12 +223,12 @@ public protocol DDDVideoTextureDelegate: class {
 
 	- Return: wether the scene should be recomputed before drawing
 	*/
-	func videoItemWillRenderForFirstTimeAtNextFrame() -> Bool
+	func videoItemWillRenderForFirstTimeAtNextFrame(sender: DDDVideoTexture) -> Bool
 
 	/**
 	Report that something unexpected happened
 	*/
-	func hasCaughtError(error: DDDError)
+	func hasCaughtError(sender: DDDVideoTexture, error: DDDError)
 }
 
 public protocol VideoPlayer {
