@@ -87,7 +87,7 @@ public class DDDVideoTexture: DDDObject {
 		guard let videoOutput = videoOutput else { return nil }
 
 		let time = videoItem.currentTime()
-		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
+		if hasRetrivedBufferForCurrentVideoItem && !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
 		let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
 		if buffer == nil {
 			delegate?.hasCaughtError(sender: self, error: DDDError.failedToGetVideoBuffer)
