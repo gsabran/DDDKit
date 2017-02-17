@@ -16,7 +16,6 @@ public enum DDDError: Error {
 	case geometryNotSetUp
 	case shaderFailedToCompile
 	case programFailedToLink
-	case failedToGetVideoBuffer
 }
 
 

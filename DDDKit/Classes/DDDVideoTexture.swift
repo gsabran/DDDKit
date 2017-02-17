@@ -74,7 +74,14 @@ public class DDDVideoTexture: DDDObject {
 	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
 		guard let videoItem = player.currentItem else { return nil }
 		if videoOutput == nil || self.videoItem !== videoItem {
-			// then
+			videoItem.outputs.flatMap({ return $0 as? AVPlayerItemVideoOutput }).forEach {
+				videoItem.remove($0)
+			}
+			if videoItem.status != AVPlayerItemStatus.readyToPlay {
+				// see https://forums.developer.apple.com/thread/27589#128476
+				return nil
+			}
+
 			let pixelBuffAttributes = [
 				kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
 				] as [String: Any]
@@ -87,12 +94,8 @@ public class DDDVideoTexture: DDDObject {
 		guard let videoOutput = videoOutput else { return nil }
 
 		let time = videoItem.currentTime()
-		if hasRetrivedBufferForCurrentVideoItem && !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
-		let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
-		if buffer == nil {
-			delegate?.hasCaughtError(sender: self, error: DDDError.failedToGetVideoBuffer)
-		}
-		return buffer
+		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
+		return videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
 	}
 
 	private func refreshTexture() {
@@ -224,11 +227,6 @@ public protocol DDDVideoTextureDelegate: class {
 	- Return: wether the scene should be recomputed before drawing
 	*/
 	func videoItemWillRenderForFirstTimeAtNextFrame(sender: DDDVideoTexture) -> Bool
-
-	/**
-	Report that something unexpected happened
-	*/
-	func hasCaughtError(sender: DDDVideoTexture, error: DDDError)
 }
 
 public protocol VideoPlayer {
