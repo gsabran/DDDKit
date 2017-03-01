@@ -126,7 +126,10 @@ open class DDDViewController: UIViewController {
 
 
 	func render(displayLink: CADisplayLink) {
-		if isPaused || !isVisible { return }
+		guard UIApplication.shared.applicationState == .active,
+			isVisible,
+			!isPaused else { return }
+
 		EAGLContext.ensureContext(is: self.context)
 		delegate?.willRender?(sender: self)
 		self.computeRendering()
