@@ -173,7 +173,7 @@ open class DDDViewController: UIViewController {
 		self.displayLink = nil
 
 		let displayLink = CADisplayLink(target: self, selector: #selector(DDDViewController.render(displayLink:)))
-		displayLink.add(to: RunLoop.current, forMode: RunLoopMode(rawValue: RunLoopMode.defaultRunLoopMode.rawValue))
+		displayLink.add(to: RunLoop.current, forMode: .commonModes)
 		self.displayLink = displayLink
 	}
 }
