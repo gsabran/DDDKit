@@ -156,25 +156,32 @@ open class DDDViewController: UIViewController {
 	}
 
 	@objc private func applicationWillResignActive() {
-		prepareToDisappear()
+		stopLoop()
 	}
 
 	@objc private func applicationDidBecomeActive() {
-		hasAppeared()
+		if isVisible {
+			restartLoop()
+		}
 	}
 
 	private func prepareToDisappear() {
 		isVisible = false
-		displayLink?.invalidate()
-		displayLink = nil
+		stopLoop()
 	}
 
 	private func hasAppeared() {
 		isVisible = true
+		restartLoop()
+	}
 
-		self.displayLink?.invalidate()
-		self.displayLink = nil
+	private func stopLoop() {
+		displayLink?.invalidate()
+		displayLink = nil
+	}
 
+	private func restartLoop() {
+		stopLoop()
 		let displayLink = CADisplayLink(target: self, selector: #selector(DDDViewController.render(displayLink:)))
 		displayLink.add(to: RunLoop.current, forMode: .commonModes)
 		self.displayLink = displayLink
