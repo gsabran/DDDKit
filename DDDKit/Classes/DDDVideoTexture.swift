@@ -134,7 +134,7 @@ public class DDDVideoTexture: DDDObject {
 		)
 
 		if err != kCVReturnSuccess {
-			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage \(err)")
+			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage  \(String(describing: err))")
 			return
 		}
 
@@ -171,7 +171,7 @@ public class DDDVideoTexture: DDDObject {
 			&chromaTexture
 		)
 		if err != kCVReturnSuccess {
-			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage \(err)");
+			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage  \(String(describing: err))");
 			return
 		}
 		guard let chromaTexture = chromaTexture else {

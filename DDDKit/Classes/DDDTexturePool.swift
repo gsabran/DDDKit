@@ -65,7 +65,7 @@ class DDDTextureSlot {
 	init(index: Int, pool: DDDTexturePool) {
 		self.index = index
 		id = GLint(index)
-		glId = GLenum(GL_TEXTURE0 + index)
+		glId = GLenum(GL_TEXTURE0 + Int32(index))
 		description = "texture\(index)"
 		self.pool = pool
 	}
