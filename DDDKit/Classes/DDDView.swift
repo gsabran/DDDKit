@@ -120,6 +120,7 @@ open class DDDViewController: UIViewController {
 	}
 
 	deinit {
+		setAsCurrent()
 		NotificationCenter.default.removeObserver(self)
 		DDDViewController.count -= 1
 	}
