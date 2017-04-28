@@ -91,24 +91,30 @@ public class DDDRenderingController: NSObject {
 	/// Return a screenshot of the scene
 	public func screenshot() -> CVPixelBuffer? {
 		setAsCurrent()
-		var output: CVPixelBuffer? = nil
-		var dstTexture: CVOpenGLESTexture? = nil
+		var out: CVPixelBuffer? = nil
+		var dest: CVOpenGLESTexture? = nil
 
 		if dstTextureCache == nil {
 			setupRenderer()
 		}
+		guard let bufferPool = bufferPool else {
+			return nil
+		}
 
 		CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
 			nil,
-			bufferPool!,
+			bufferPool,
 			bufferPoolAuxAttrs,
-			&output
+			&out
 		)
+		guard let dstTextureCache = dstTextureCache, let output = out else {
+			return nil
+		}
 
 		CVOpenGLESTextureCacheCreateTextureFromImage(
 			nil,
-			dstTextureCache!,
-			output!,
+			dstTextureCache,
+			output,
 			nil,
 			GLenum(GL_TEXTURE_2D),
 			GL_RGBA,
@@ -117,15 +123,16 @@ public class DDDRenderingController: NSObject {
 			GLenum(GL_BGRA),
 			GLenum(GL_UNSIGNED_BYTE),
 			0,
-			&dstTexture
+			&dest
 		)
+		guard let dstTexture = dest else { return nil }
 
 		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
 
 		// Sets up our dest pixel buffer as the framebuffer render target.
 		glActiveTexture(GLenum(GL_TEXTURE0))
-		glBindTexture(CVOpenGLESTextureGetTarget(dstTexture!),
-		              CVOpenGLESTextureGetName(dstTexture!))
+		glBindTexture(CVOpenGLESTextureGetTarget(dstTexture),
+		              CVOpenGLESTextureGetName(dstTexture))
 		glTexParameteri(GLenum(GL_TEXTURE_2D),
 		                GLenum(GL_TEXTURE_MIN_FILTER),
 		                GL_LINEAR)
@@ -137,8 +144,8 @@ public class DDDRenderingController: NSObject {
 		                GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
 		glFramebufferTexture2D(GLenum(GL_FRAMEBUFFER),
 		                       GLenum(GL_COLOR_ATTACHMENT0),
-		                       CVOpenGLESTextureGetTarget(dstTexture!),
-		                       CVOpenGLESTextureGetName(dstTexture!), 0)
+		                       CVOpenGLESTextureGetTarget(dstTexture),
+		                       CVOpenGLESTextureGetName(dstTexture), 0)
 		computeRendering()
 		glFlush()
 		return output
