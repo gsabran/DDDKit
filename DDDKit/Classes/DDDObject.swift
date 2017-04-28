@@ -12,4 +12,6 @@ public class DDDObject: NSObject {
 	override init() {
 		super.init()
 	}
+	
+	func reset() {}
 }

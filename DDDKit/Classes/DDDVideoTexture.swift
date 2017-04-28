@@ -8,24 +8,19 @@
 
 import AVFoundation
 /// Describes a video texture that can be used as a luma and chroma planes in a shader
-public class DDDVideoTexture: DDDObject {
-	/// wether this texture is actively used (if so, it might block rendering if it has not loaded yet)
-	public var isActive = true {
-		didSet {
-			lumaPlane.isActive = isActive
-			chromaPlane.isActive = isActive
-		}
-	}
-	let lumaPlane: DDDVideoPlaneTexture
-	let chromaPlane: DDDVideoPlaneTexture
-
-	private var lumaTexture: CVOpenGLESTexture?
-	private var chromaTexture: CVOpenGLESTexture?
-	private var videoTextureCache: CVOpenGLESTextureCache?
-	private var videoOutput: AVPlayerItemVideoOutput?
+public class DDDVideoTexture: DDDVideoBufferTexture {
+	private static var itemsUsed = [Int: Int]()
 
 	private let player: VideoPlayer
-	private var videoItem: AVPlayerItem?
+	private var videoItem: AVPlayerItem? {
+		didSet {
+			guard oldValue != videoItem else { return }
+			// Keep track of video item assignement for helpful debugging messages
+			decreaseRetainCounter(for: oldValue)
+			increaseRetainCounter(for: videoItem)
+		}
+	}
+
 	private var hasRetrivedBufferForCurrentVideoItem = false
 	/// A delegate that should be messaged when the texture's state changes
 	public weak var delegate: DDDVideoTextureDelegate?
@@ -36,27 +31,10 @@ public class DDDVideoTexture: DDDObject {
 	*/
 	public init(player: VideoPlayer) {
 		self.player = player
-		lumaPlane = DDDVideoPlaneTexture()
-		chromaPlane = DDDVideoPlaneTexture()
-		super.init()
-
-		lumaPlane.videoTexture = self
-		chromaPlane.videoTexture = self
+		super.init(buffer: nil)
 	}
 
-	private var hasSetUp = false
-	func dddWorldDidLoad(context: EAGLContext) {
-		if hasSetUp { return } // this might get called by each child texture
-
-		setupVideoCacheIfNotAlready(context: context)
-		hasSetUp = true
-	}
-
-	deinit {
-		cleanUpTextures()
-	}
-
-	func prepareToBeUsed() -> Bool {
+	override func prepareToBeUsed() -> Bool {
 		guard let videoItem = player.currentItem else { return false }
 		if self.videoItem !== videoItem {
 			hasRetrivedBufferForCurrentVideoItem = false
@@ -64,7 +42,7 @@ public class DDDVideoTexture: DDDObject {
 		let hadRetrivedBufferForCurrentVideoItem = hasRetrivedBufferForCurrentVideoItem
 		refreshTexture()
 		if hasRetrivedBufferForCurrentVideoItem && !hadRetrivedBufferForCurrentVideoItem {
-			if delegate?.videoItemWillRenderForFirstTimeAtNextFrame(sender: self) == true {
+			if delegate?.videoItemWillRenderForFirstTimeAtNextFrame?(sender: self) == true {
 				return true
 			}
 		}
@@ -95,138 +73,57 @@ public class DDDVideoTexture: DDDObject {
 
 		let time = videoItem.currentTime()
 		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
-		return videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
+		guard let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
+			else { return nil }
+		delegate?.didCapture?(buffer: buffer, sender: self)
+		return buffer
 	}
 
-	private func refreshTexture() {
-		var err: CVReturn? = nil
+	override func refreshTexture() {
 		guard let pixelBuffer = retrievePixelBufferToDraw() else {
 			return
 		}
-		let textureWidth = GLsizei(CVPixelBufferGetWidth(pixelBuffer))
-		let textureHeight = GLsizei(CVPixelBufferGetHeight(pixelBuffer))
-
-		guard let videoTextureCache = videoTextureCache else {
-			print("No video texture cache")
-			return
-		}
-		cleanUpTextures()
-
-		// Y-plane
-		guard let lumaSlot = lumaPlane.slot else {
-			print("No lumaSlot")
-			return
-		}
-		glActiveTexture(lumaSlot.glId);
-		err = CVOpenGLESTextureCacheCreateTextureFromImage(
-			kCFAllocatorDefault,
-			videoTextureCache,
-			pixelBuffer,
-			nil,
-			GLenum(GL_TEXTURE_2D),
-			GL_RED_EXT,
-			textureWidth,
-			textureHeight,
-			GLenum(GL_RED_EXT),
-			GLenum(GL_UNSIGNED_BYTE),
-			0,
-			&lumaTexture
-		)
-
-		if err != kCVReturnSuccess {
-			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage  \(String(describing: err))")
-			return
-		}
-
-		guard let lumaTexture = lumaTexture else {
-			print("no lumaTexture")
-			return
-		}
-
-		glBindTexture(CVOpenGLESTextureGetTarget(lumaTexture), CVOpenGLESTextureGetName(lumaTexture))
-		glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
-		glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
-		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GLfloat(GL_CLAMP_TO_EDGE))
-		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GLfloat(GL_CLAMP_TO_EDGE))
-		lumaPlane.hasReceivedData = true
-
-		// UV-plane.
-		guard let chromaSlot = chromaPlane.slot else {
-			print("No chromaSlot")
-			return
-		}
-		glActiveTexture(chromaSlot.glId)
-		err = CVOpenGLESTextureCacheCreateTextureFromImage(
-			kCFAllocatorDefault,
-			videoTextureCache,
-			pixelBuffer,
-			nil,
-			GLenum(GL_TEXTURE_2D),
-			GL_RG_EXT,
-			textureWidth/2,
-			textureHeight/2,
-			GLenum(GL_RG_EXT),
-			GLenum(GL_UNSIGNED_BYTE),
-			1,
-			&chromaTexture
-		)
-		if err != kCVReturnSuccess {
-			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage  \(String(describing: err))");
-			return
-		}
-		guard let chromaTexture = chromaTexture else {
-			print("no chromaTexture")
-			return
-		}
-
-		glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture))
-		glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MIN_FILTER), GL_LINEAR)
-		glTexParameteri(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
-		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GLfloat(GL_CLAMP_TO_EDGE))
-		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GLfloat(GL_CLAMP_TO_EDGE))
-		chromaPlane.hasReceivedData = true
+		buffer = pixelBuffer
+		super.refreshTexture()
 		hasRetrivedBufferForCurrentVideoItem = true
 	}
 
-	private func cleanUpTextures() {
-		lumaTexture = nil
-		chromaTexture = nil
-
-		// Periodic texture cache flush every time the video frame has changed
-		guard let videoTextureCache = videoTextureCache else { return }
-		CVOpenGLESTextureCacheFlush(videoTextureCache, 0)
+	deinit {
+		decreaseRetainCounter(for: videoItem)
 	}
 
-	private func setupVideoCacheIfNotAlready(context: EAGLContext) {
-		if videoTextureCache == nil {
-			let err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, nil, context, nil, &videoTextureCache);
-			if err != noErr {
-				print("Error at CVOpenGLESTextureCacheCreate \(err)");
-				return;
+	private func decreaseRetainCounter(for item: AVPlayerItem?) {
+		if let item = item, let val = DDDVideoTexture.itemsUsed[item.hashValue] {
+			if val == 1 {
+				DDDVideoTexture.itemsUsed.removeValue(forKey: item.hashValue)
+			} else {
+				DDDVideoTexture.itemsUsed[item.hashValue] = val - 1
 			}
 		}
 	}
 
-	func textureId(for plane: DDDVideoPlaneTexture) -> GLuint? {
-		if chromaPlane === plane {
-			guard let chromaTexture = chromaTexture else { return nil }
-			return CVOpenGLESTextureGetName(chromaTexture)
+	private func increaseRetainCounter(for item: AVPlayerItem?) {
+		guard let item = item else { return }
+		if let val = DDDVideoTexture.itemsUsed[item.hashValue] {
+			print("DDDKIT WARNING: using the same AVPlayerItem on several textures may have unexpected side effects")
+			DDDVideoTexture.itemsUsed[item.hashValue] = val + 1
+		} else {
+			DDDVideoTexture.itemsUsed[item.hashValue] = 1
 		}
-		if lumaPlane === plane {
-			guard let lumaTexture = lumaTexture else { return nil }
-			return CVOpenGLESTextureGetName(lumaTexture)
-		}
-		return nil
 	}
 }
 
-public protocol DDDVideoTextureDelegate: class {
+@objc public protocol DDDVideoTextureDelegate: class {
 	/**
 	When a video item has received data and can be drawn at the next rendering pass
 
 	- Return: wether the scene should be recomputed before drawing
 	*/
-	func videoItemWillRenderForFirstTimeAtNextFrame(sender: DDDVideoTexture) -> Bool
+	@objc optional func videoItemWillRenderForFirstTimeAtNextFrame(sender: DDDVideoTexture) -> Bool
+	/**
+	When a video item has received new pixel data
+	*/
+	@objc optional func didCapture(buffer: CVPixelBuffer, sender: DDDVideoTexture)
 }
 
 public protocol VideoPlayer {

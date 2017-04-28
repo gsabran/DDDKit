@@ -93,4 +93,8 @@ public class DDDGeometry {
 	func prepareToUse() {
 		glBindVertexArray(vertexArrayObject)
 	}
+	
+	func reset() {
+		hasSetUp = false
+	}
 }

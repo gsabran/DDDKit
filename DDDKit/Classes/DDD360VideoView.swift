@@ -105,7 +105,7 @@ open class DDD360VideoViewController: DDDViewController {
 			print("could not set shaders: \(error)")
 		}
 
-		scene?.add(node: videoNode)
+		scene.add(node: videoNode)
 		videoNode.position = Vec3(v: (0, 0, -30))
 	}
 

@@ -1,0 +1,322 @@
+//
+//  DDDRenderingController.swift
+//  Pods
+//
+//  Created by Guillaume Sabran on 4/20/17.
+//
+//
+
+import GLKit
+import GLMatrix
+
+public class DDDRenderingController: NSObject {
+	static var count = 0
+	public var size: CGSize {
+		didSet {
+			if size != oldValue {
+				setAsCurrent()
+				resetGL()
+			}
+		}
+	}
+
+	fileprivate var eagllayer: CAEAGLLayer?
+	private var context: EAGLContext
+
+	fileprivate var colorRenderBuffer = GLuint()
+	fileprivate var depthRenderBuffer = GLuint()
+	fileprivate var framebuffer = GLuint()
+	private var displayLink: CADisplayLink?
+
+	/// Wether the rendering computation should be skipped
+	public var isPaused = false
+	/// The 3D scene to be displayed
+	public internal(set) var scene: DDDScene
+	/// An optional delegate
+	public weak var delegate: DDDSceneDelegate?
+	/// The camera vertical overture, in radian
+	public var cameraOverture = GLKMathDegreesToRadians(65)
+
+	private var texturesPool: DDDTexturePool?
+
+	private var dstTextureCache: CVOpenGLESTextureCache?
+	private var bufferPool: CVPixelBufferPool!
+	private var bufferPoolAuxAttrs: CFDictionary!
+
+	public init(view: DDDView) {
+		size = view.frame.size
+
+		let api = EAGLRenderingAPI.openGLES2
+		context = EAGLContext(api: api)
+		if !EAGLContext.setCurrent(context) {
+			print("could not set eagl context")
+		}
+		if let layer = view.layer as? CAEAGLLayer {
+			eagllayer = layer
+			eagllayer?.isOpaque = false
+		}
+
+		scene = DDDScene()
+		super.init()
+
+		initializeGL()
+		DDDRenderingController.count += 1
+		restartLoop()
+	}
+
+	public init(size: CGSize) {
+		self.size = size
+
+		let api = EAGLRenderingAPI.openGLES2
+		context = EAGLContext(api: api)
+		if !EAGLContext.setCurrent(context) {
+			print("could not set eagl context")
+		}
+
+		scene = DDDScene()
+		super.init()
+
+		initializeGL()
+		DDDRenderingController.count += 1
+		restartLoop()
+
+	}
+
+	/// Attach the next DDDKit calls to the controller.
+	/// Should be done when dealing with multiple scenes
+	public func setAsCurrent() {
+		EAGLContext.ensureContext(is: context)
+	}
+
+	/// Return a screenshot of the scene
+	public func screenshot() -> CVPixelBuffer? {
+		setAsCurrent()
+		var output: CVPixelBuffer? = nil
+		var dstTexture: CVOpenGLESTexture? = nil
+
+		if dstTextureCache == nil {
+			setupRenderer()
+		}
+
+		CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+			nil,
+			bufferPool!,
+			bufferPoolAuxAttrs,
+			&output
+		)
+
+		CVOpenGLESTextureCacheCreateTextureFromImage(
+			nil,
+			dstTextureCache!,
+			output!,
+			nil,
+			GLenum(GL_TEXTURE_2D),
+			GL_RGBA,
+			GLsizei(size.width),
+			GLsizei(size.height),
+			GLenum(GL_BGRA),
+			GLenum(GL_UNSIGNED_BYTE),
+			0,
+			&dstTexture
+		)
+
+		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
+
+		// Sets up our dest pixel buffer as the framebuffer render target.
+		glActiveTexture(GLenum(GL_TEXTURE0))
+		glBindTexture(CVOpenGLESTextureGetTarget(dstTexture!),
+		              CVOpenGLESTextureGetName(dstTexture!))
+		glTexParameteri(GLenum(GL_TEXTURE_2D),
+		                GLenum(GL_TEXTURE_MIN_FILTER),
+		                GL_LINEAR)
+		glTexParameteri(GLenum(GL_TEXTURE_2D),
+		                GLenum(GL_TEXTURE_MAG_FILTER), GL_LINEAR)
+		glTexParameteri(GLenum(GL_TEXTURE_2D),
+		                GLenum(GL_TEXTURE_WRAP_S), GL_CLAMP_TO_EDGE)
+		glTexParameteri(GLenum(GL_TEXTURE_2D),
+		                GLenum(GL_TEXTURE_WRAP_T), GL_CLAMP_TO_EDGE)
+		glFramebufferTexture2D(GLenum(GL_FRAMEBUFFER),
+		                       GLenum(GL_COLOR_ATTACHMENT0),
+		                       CVOpenGLESTextureGetTarget(dstTexture!),
+		                       CVOpenGLESTextureGetName(dstTexture!), 0)
+		computeRendering()
+		glFlush()
+		return output
+	}
+
+	fileprivate func setupRenderer() {
+		glDisable(GLenum(GL_DEPTH_TEST))
+		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
+		CVOpenGLESTextureCacheCreate(nil, nil, context, nil, &dstTextureCache)
+
+		let retainedBufferCount = 6
+		bufferPool = createPixelBufferPool(format: kCVPixelFormatType_32BGRA,
+		                                   count: retainedBufferCount)
+
+		bufferPoolAuxAttrs = [
+			kCVPixelBufferPoolAllocationThresholdKey as String:
+			retainedBufferCount
+			] as CFDictionary
+
+		var pixelBuffers = [CVPixelBuffer]()
+		var error: OSStatus? = nil
+		while true {
+			var pixelBuffer: CVPixelBuffer? = nil
+			error = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+				nil, bufferPool, bufferPoolAuxAttrs, &pixelBuffer)
+
+			if error == kCVReturnWouldExceedAllocationThreshold { break }
+
+			pixelBuffers.append(pixelBuffer!)
+		}
+		pixelBuffers.removeAll()
+	}
+
+	func createPixelBufferPool(format: OSType,
+	                           count: Int) -> CVPixelBufferPool {
+
+		var bufferPool: CVPixelBufferPool? = nil
+
+		let attributes: [String: Any] = [
+			kCVPixelFormatOpenGLESCompatibility as String: true,
+			kCVPixelBufferIOSurfacePropertiesKey as String: [:],
+			kCVPixelBufferPixelFormatTypeKey as String: format,
+			kCVPixelBufferWidthKey as String: size.width,
+			kCVPixelBufferHeightKey as String: size.height
+		]
+
+		let poolAttributes: [String: Any] = [
+			kCVPixelBufferPoolMinimumBufferCountKey as String: count
+		]
+
+		CVPixelBufferPoolCreate(nil,
+		                        poolAttributes as CFDictionary,
+		                        attributes as CFDictionary,
+		                        &bufferPool)
+
+		return bufferPool!
+	}
+
+
+	private func initializeGL() {
+		resetGL()
+
+		// texture pool
+		texturesPool = DDDTexturePool()
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(applicationWillResignActive),
+			name: NSNotification.Name.UIApplicationWillResignActive,
+			object: nil
+		)
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(applicationDidBecomeActive),
+			name: NSNotification.Name.UIApplicationDidBecomeActive,
+			object: nil
+		)
+	}
+
+	private func resetGL() {
+		// depth buffer
+		if depthRenderBuffer == 0 {
+			glGenRenderbuffers(1, &depthRenderBuffer)
+		}
+		glBindRenderbuffer(GLenum(GL_RENDERBUFFER), depthRenderBuffer)
+		glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT16), GLsizei(size.width), GLsizei(size.height))
+
+		// render buffer
+		if colorRenderBuffer == 0 {
+			glGenRenderbuffers(1, &colorRenderBuffer)
+		}
+		glBindRenderbuffer(GLenum(GL_RENDERBUFFER), colorRenderBuffer)
+		if eagllayer != nil {
+			context.renderbufferStorage(Int(GL_RENDERBUFFER), from: eagllayer)
+		}
+		if framebuffer == 0 {
+			glGenFramebuffers(1, &framebuffer)
+		}
+
+		scene.reset()
+	}
+
+	private func prepareScreenRendering() {
+		// frame buffer
+
+		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
+		glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_COLOR_ATTACHMENT0),
+		                          GLenum(GL_RENDERBUFFER), colorRenderBuffer)
+		glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_DEPTH_ATTACHMENT), GLenum(GL_RENDERBUFFER), depthRenderBuffer)
+	}
+
+	@objc private func render(displayLink: CADisplayLink) {
+		guard UIApplication.shared.applicationState == .active,
+			delegate?.shouldRender?(sender: self) != false,
+			!isPaused else { return }
+
+		setAsCurrent()
+		prepareScreenRendering()
+		delegate?.willRender?(sender: self)
+		computeRendering()
+		delegate?.didRender?(sender: self)
+	}
+
+	private func computeRendering() {
+		glClearColor(0, 0, 0, 0)
+		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
+		glEnable(GLenum(GL_DEPTH_TEST))
+		glViewport(0, 0, GLsizei(size.width), GLsizei(size.height))
+
+		guard let texturesPool = texturesPool else { return }
+
+		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
+
+		let aspect = Float(fabs(size.width / size.height))
+		let projection = GLKMatrix4MakePerspective(cameraOverture, aspect, 0.1, 400.0)
+		if scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool) {
+			return computeRendering()
+		}
+
+		context.presentRenderbuffer(Int(GL_RENDERBUFFER))
+	}
+
+	@objc private func applicationWillResignActive() {
+		stopLoop()
+	}
+
+	@objc private func applicationDidBecomeActive() {
+		restartLoop()
+	}
+
+	private func stopLoop() {
+		displayLink?.invalidate()
+		displayLink = nil
+	}
+
+	private func restartLoop() {
+		stopLoop()
+		let displayLink = CADisplayLink(target: self, selector: #selector(DDDRenderingController.render(displayLink:)))
+		displayLink.add(to: RunLoop.current, forMode: .commonModes)
+		self.displayLink = displayLink
+	}
+
+	deinit {
+		setAsCurrent()
+		NotificationCenter.default.removeObserver(self)
+		DDDRenderingController.count -= 1
+	}
+}
+
+/// An object that responds to scene rendering state change
+@objc public protocol DDDSceneDelegate: class {
+	/**
+	Called before the scene renders.
+	It's a good place to move objects, change properties etc.
+	*/
+	@objc optional func willRender(sender: DDDRenderingController)
+	/// Called after a rendering pass is completed
+	@objc optional func didRender(sender: DDDRenderingController)
+	/// Return false if the next rendering pass should be skipped
+	@objc optional func shouldRender(sender: DDDRenderingController) -> Bool
+}

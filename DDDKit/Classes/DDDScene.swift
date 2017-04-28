@@ -74,4 +74,8 @@ open class DDDScene {
 	public func empty() {
 		nodes.removeAll()
 	}
+	
+	func reset() {
+		nodes.forEach { $0.reset() }
+	}
 }

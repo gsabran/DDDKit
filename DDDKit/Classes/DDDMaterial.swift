@@ -15,7 +15,7 @@ Attached to a DDDNode, it describes how the node should look like.
 */
 public class DDDMaterial {
 	private(set) var properties = Set<DDDProgramProperty>()
-	private var videoTextures = Set<DDDVideoTexture>()
+	private var videoTextures = Set<DDDVideoBufferTexture>()
 
 	/// the shader program (ie vertex and fragment shaders)
 	public var shaderProgram: DDDShaderProgram? {
@@ -32,7 +32,7 @@ public class DDDMaterial {
 	Set a shader property
 	- Parameter property: the property to set
 	- Parameter key: the name of the property in the shader
-	
+
 	```
 	set(property: DDDTexture(image: myImage), for "u_diffuse")
 	// in shader:
@@ -90,6 +90,15 @@ public class DDDMaterial {
 	}
 
 	/**
+	Set an int property
+	- Parameter int: the int
+	- Parameter key: the name of the property in the shader
+	*/
+	public func set(int: Int, for key: String) {
+		set(property: DDDIntProperty(int), for: key)
+	}
+
+	/**
 	Set a float property
 	- Parameter float: the float
 	- Parameter key: the name of the property in the shader
@@ -100,21 +109,16 @@ public class DDDMaterial {
 
 	/**
 	Set a video texture property
-	- Parameter videoTexture: the video texture
+	- Parameter videoTexture: the video or pixel texture
 	- Parameter lumaKey: the name of the luma property in the shader
 	- Parameter chromaKey: the name of the chroma property in the shader
 	*/
-	public func set(property videoTexture: DDDVideoTexture, for lumaKey: String, and chromaKey: String) {
+	public func set(property videoTexture: DDDVideoBufferTexture, for lumaKey: String, and chromaKey: String) {
 		set(property: videoTexture.lumaPlane, for: lumaKey)
 		set(property: videoTexture.chromaPlane, for: chromaKey)
 		removeUnusedvideoTextures()
 		videoTextures.insert(videoTexture)
 	}
-
-
-
-
-
 
 	/**
 	Unset a property at a given location
@@ -128,7 +132,7 @@ public class DDDMaterial {
 	}
 
 	private func removeUnusedvideoTextures() {
-		var toBeRemoved = [DDDVideoTexture]()
+		var toBeRemoved = [DDDVideoBufferTexture]()
 		videoTextures.forEach { texture in
 			var lumaPlaneIsUsed = false
 			var chromaPlaneIsUsed = false
@@ -142,8 +146,7 @@ public class DDDMaterial {
 				}
 			}
 
-			if !lumaPlaneIsUsed &&
-				!chromaPlaneIsUsed {
+			if !lumaPlaneIsUsed && !chromaPlaneIsUsed {
 				toBeRemoved.append(texture)
 			}
 		}
@@ -152,17 +155,6 @@ public class DDDMaterial {
 		}
 	}
 
-	/*public func remove(property: DDDProperty, for key: String) {
-		var toBeRemoved = [DDDProgramProperty]()
-		properties.forEach { prop in
-			if prop.property === property && prop.locationName == key {
-				toBeRemoved.append(prop)
-			}
-		}
-		toBeRemoved.forEach { prop in
-			properties.remove(prop)
-		}
-	}*/
 	/**
 	Unset a video texture property
 
@@ -178,5 +170,9 @@ public class DDDMaterial {
 	public func removeAllProperties() {
 		properties.removeAll()
 		videoTextures.removeAll()
+	}
+
+	func reset() {
+		videoTextures.forEach { $0.reset() }
 	}
 }

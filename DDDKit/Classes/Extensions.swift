@@ -12,7 +12,9 @@ extension EAGLContext {
 	static func ensureContext(is context: EAGLContext?) {
 		guard let context = context else { return }
 		if current() !== context {
-			setCurrent(context)
+			if !setCurrent(context) {
+				print("could not set eagl context")
+			}
 		}
 	}
 }

@@ -7,8 +7,6 @@
 //
 
 import UIKit
-import GLKit
-import GLMatrix
 
 /**
 A UIViewController that manages a 3D scene
@@ -17,26 +15,43 @@ A UIViewController that manages a 3D scene
 */
 open class DDDViewController: UIViewController {
 	static var count = 0
-	private weak var sceneView: DDDView?
+	private weak var sceneView: DDDView!
+	fileprivate var isVisible = false
 
-	fileprivate var eagllayer: CAEAGLLayer!
-	fileprivate var context: EAGLContext!
+	public private(set) var renderingController: DDDRenderingController!
+	public weak var delegate: DDDViewControllerDelegate?
+	public var scene: DDDScene! {
+		return renderingController?.scene
+	}
 
-	fileprivate var colorRenderBuffer = GLuint()
-	fileprivate var depthRenderBuffer = GLuint()
+	public var cameraOverture: Float! {
+		return renderingController.cameraOverture
+	}
 
-	private var isVisible = false
-	/// Wether the rendering computation should be skipped
-	public var isPaused = false
-	/// The 3D scene to be displayed
-	public internal(set) var scene: DDDScene!
-	/// An optional delegate
-	public weak var delegate: DDDSceneDelegate?
-	/// The camera vertical overture, in radian
-	public var cameraOverture = GLKMathDegreesToRadians(65)
+	public var isPaused: Bool {
+		didSet {
+			renderingController.isPaused = isPaused
+		}
+	}
 
-	fileprivate var texturesPool: DDDTexturePool?
-	private var displayLink: CADisplayLink?
+	public init() {
+		self.isPaused = false
+		DDDViewController.count += 1
+		super.init(nibName: nil, bundle: nil)
+	}
+
+	/// Creates a rendering canvas within the view controller
+	public convenience init(within viewController: UIViewController) {
+		self.init()
+		viewController.view.addSubview(view)
+		viewController.view.sendSubview(toBack: view)
+		viewController.addChildViewController(self)
+		didMove(toParentViewController: viewController)
+	}
+
+	public required init?(coder aDecoder: NSCoder) {
+		fatalError("DDDViewController should not be initialized from a coder")
+	}
 
 	open override func viewDidLoad() {
 		super.viewDidLoad()
@@ -45,35 +60,36 @@ open class DDDViewController: UIViewController {
 		let sceneView = DDDView()
 		sceneView.frame = view.frame
 		view.insertSubview(sceneView, at: 0)
+		sceneView.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate(
+			[
+				NSLayoutConstraint(item: sceneView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0),
+				NSLayoutConstraint(item: sceneView, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0),
+				NSLayoutConstraint(item: sceneView, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0),
+				NSLayoutConstraint(item: sceneView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0),
+				]
+		)
 		self.sceneView = sceneView
 
-		let api = EAGLRenderingAPI.openGLES2
-		context = EAGLContext(api: api)
-		if !EAGLContext.setCurrent(context) {
-			print("could not set eagl context")
-		}
-		eagllayer = sceneView.layer as! CAEAGLLayer
-		eagllayer.isOpaque = false
-
-		initializeGL()
-		scene = DDDScene()
+		renderingController = DDDRenderingController(view: sceneView)
+		renderingController.delegate = self
 	}
 
 	/// attach the next DDDKit calls to the controller
 	public func setAsCurrent() {
-		guard isViewLoaded else {
+		guard renderingController != nil else {
 			fatalError("Cannot set DDDViewController as current before is has loaded")
 		}
-		EAGLContext.ensureContext(is: context)
+		renderingController.setAsCurrent()
 	}
 
 	open override func viewDidAppear(_ animated: Bool) {
-		hasAppeared()
+		isVisible = true
 		super.viewDidAppear(animated)
 	}
 
 	open override func viewWillDisappear(_ animated: Bool) {
-		prepareToDisappear()
+		isVisible = false
 		super.viewWillDisappear(animated)
 	}
 
@@ -82,114 +98,28 @@ open class DDDViewController: UIViewController {
 		return false
 	}
 
-	private func initializeGL() {
-		// depth buffer
-		glGenRenderbuffers(1, &depthRenderBuffer);
-		glBindRenderbuffer(GLenum(GL_RENDERBUFFER), depthRenderBuffer);
-		glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT16), GLsizei(view.frame.size.width), GLsizei(view.frame.size.height))
+	open override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		sceneView.frame = view.frame
 
-		// render buffer
-		glGenRenderbuffers(1, &colorRenderBuffer)
-		glBindRenderbuffer(GLenum(GL_RENDERBUFFER), colorRenderBuffer)
-		context.renderbufferStorage(Int(GL_RENDERBUFFER), from: eagllayer)
+		if renderingController != nil {
+			renderingController.size = sceneView.frame.size
+		}
+		setAsCurrent()
+		delegate?.didResize?(sender: self)
+	}
 
-
-		// frame buffer
-		var framebuffer: GLuint = 0
-		glGenFramebuffers(1, &framebuffer)
-		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
-		glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_COLOR_ATTACHMENT0),
-		                          GLenum(GL_RENDERBUFFER), colorRenderBuffer)
-		glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_DEPTH_ATTACHMENT), GLenum(GL_RENDERBUFFER), depthRenderBuffer);
-
-		// texture pool
-		texturesPool = DDDTexturePool()
-
-		NotificationCenter.default.addObserver(
-			self,
-			selector: #selector(applicationWillResignActive),
-			name: NSNotification.Name.UIApplicationWillResignActive,
-			object: nil
-		)
-		NotificationCenter.default.addObserver(
-			self,
-			selector: #selector(applicationDidBecomeActive),
-			name: NSNotification.Name.UIApplicationDidBecomeActive,
-			object: nil
-		)
+	/// Return a screenshot of the view
+	public func screenshot() -> CVPixelBuffer? {
+		return renderingController.screenshot()
 	}
 
 	deinit {
-		setAsCurrent()
-		NotificationCenter.default.removeObserver(self)
 		DDDViewController.count -= 1
-	}
-
-
-	func render(displayLink: CADisplayLink) {
-		guard UIApplication.shared.applicationState == .active,
-			isVisible,
-			!isPaused else { return }
-
-		EAGLContext.ensureContext(is: self.context)
-		delegate?.willRender?(sender: self)
-		self.computeRendering()
-		delegate?.didRender?(sender: self)
-	}
-
-	private func computeRendering() {
-		glClearColor(0, 0, 0, 0)
-		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
-		glEnable(GLenum(GL_DEPTH_TEST))
-		glViewport(0, 0, GLsizei(self.view.frame.size.width), GLsizei(self.view.frame.size.height))
-
-		guard let scene = scene, let texturesPool = texturesPool else { return }
-
-		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
-
-		let aspect = Float(fabs(view.frame.width / view.frame.height))
-		let projection = GLKMatrix4MakePerspective(cameraOverture, aspect, 0.1, 400.0)
-		if scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool) {
-			return computeRendering()
-		}
-
-		self.context.presentRenderbuffer(Int(GL_RENDERBUFFER))
-	}
-
-	@objc private func applicationWillResignActive() {
-		stopLoop()
-	}
-
-	@objc private func applicationDidBecomeActive() {
-		if isVisible {
-			restartLoop()
-		}
-	}
-
-	private func prepareToDisappear() {
-		isVisible = false
-		stopLoop()
-	}
-
-	private func hasAppeared() {
-		isVisible = true
-		restartLoop()
-	}
-
-	private func stopLoop() {
-		displayLink?.invalidate()
-		displayLink = nil
-	}
-
-	private func restartLoop() {
-		stopLoop()
-		let displayLink = CADisplayLink(target: self, selector: #selector(DDDViewController.render(displayLink:)))
-		displayLink.add(to: RunLoop.current, forMode: .commonModes)
-		self.displayLink = displayLink
 	}
 }
 
-class DDDView: UIView {
+public class DDDView: UIView {
 	override class open var layerClass: AnyClass {
 		get {
 			return CAEAGLLayer.self
@@ -197,12 +127,21 @@ class DDDView: UIView {
 	}
 }
 
-/// An object that responds to scene rendering state change
-@objc public protocol DDDSceneDelegate: class {
-	/**
-	Called before the scene renders.
-	It's a good place to move objects, change properties etc.
-	*/
-	@objc optional func willRender(sender: DDDViewController)
-	@objc optional func didRender(sender: DDDViewController)
+extension DDDViewController: DDDSceneDelegate {
+	public func willRender(sender: DDDRenderingController) {
+		delegate?.willRender?(sender: sender)
+	}
+	public func didRender(sender: DDDRenderingController) {
+		delegate?.didRender?(sender: sender)
+	}
+	public func shouldRender(sender: DDDRenderingController) -> Bool {
+		return isVisible &&
+			delegate?.shouldRender?(sender: sender) != false
+	}
+}
+
+/// An object that manage rendering and display changes
+@objc public protocol DDDViewControllerDelegate: DDDSceneDelegate {
+	/// Called after the view did resize
+	@objc optional func didResize(sender: DDDViewController)
 }

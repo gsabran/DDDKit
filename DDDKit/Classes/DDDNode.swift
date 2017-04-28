@@ -120,6 +120,12 @@ public class DDDNode {
 	func didRender() {
 		material.properties.forEach { $0.property.willBeUsedAtNextDraw = false }
 	}
+
+	func reset() {
+		hasSetup = false
+		geometry?.reset()
+		material.reset()
+	}
 }
 
 extension DDDNode: Equatable {
