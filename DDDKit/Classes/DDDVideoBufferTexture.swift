@@ -63,36 +63,39 @@ public class DDDVideoBufferTexture: DDDObject {
 		cleanUpTextures()
 	}
 
-	func prepareToBeUsed() -> Bool {
+	func prepareToBeUsed() -> RenderingResult {
 		guard lumaPlane.hasSlot && chromaPlane.hasSlot else {
 			// one of the planes has not set up yet. The function will be pinged again when ready
-			return false
+			return .ok
 		}
 		if shouldRefreshTexture {
-			refreshTexture()
+			let isReady = refreshTexture()
+			if isReady != .ok {
+				return isReady
+			}
 			shouldRefreshTexture = false
 		}
-		return false
+		return .ok
 	}
 
-	func refreshTexture() {
+	func refreshTexture() -> RenderingResult {
 		var err: CVReturn? = nil
 		guard let pixelBuffer = buffer else {
-			return
+			return .notReady
 		}
 		let textureWidth = GLsizei(CVPixelBufferGetWidth(pixelBuffer))
 		let textureHeight = GLsizei(CVPixelBufferGetHeight(pixelBuffer))
 
 		guard let videoTextureCache = videoTextureCache else {
 			print("No video texture cache")
-			return
+			return .notReady
 		}
 		cleanUpTextures()
 
 		// Y-plane
 		guard let lumaSlot = lumaPlane.slot else {
 			print("No lumaSlot")
-			return
+			return .notReady
 		}
 
 		glActiveTexture(lumaSlot.glId);
@@ -113,12 +116,12 @@ public class DDDVideoBufferTexture: DDDObject {
 
 		if err != kCVReturnSuccess {
 			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage  \(String(describing: err))")
-			return
+			return .notReady
 		}
 
 		guard let lumaTexture = lumaTexture else {
 			print("no lumaTexture")
-			return
+			return .notReady
 		}
 
 		glBindTexture(CVOpenGLESTextureGetTarget(lumaTexture), CVOpenGLESTextureGetName(lumaTexture))
@@ -131,7 +134,7 @@ public class DDDVideoBufferTexture: DDDObject {
 		// UV-plane.
 		guard let chromaSlot = chromaPlane.slot else {
 			print("No chromaSlot")
-			return
+			return .notReady
 		}
 		glActiveTexture(chromaSlot.glId)
 		err = CVOpenGLESTextureCacheCreateTextureFromImage(
@@ -150,11 +153,11 @@ public class DDDVideoBufferTexture: DDDObject {
 		)
 		if err != kCVReturnSuccess {
 			print("Error at CVOpenGLESTextureCacheCreateTextureFromImage  \(String(describing: err))");
-			return
+			return .notReady
 		}
 		guard let chromaTexture = chromaTexture else {
 			print("no chromaTexture")
-			return
+			return .notReady
 		}
 
 		glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture))
@@ -163,6 +166,7 @@ public class DDDVideoBufferTexture: DDDObject {
 		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_S), GLfloat(GL_CLAMP_TO_EDGE))
 		glTexParameterf(GLenum(GL_TEXTURE_2D), GLenum(GL_TEXTURE_WRAP_T), GLfloat(GL_CLAMP_TO_EDGE))
 		chromaPlane.hasReceivedData = true
+		return .ok
 	}
 
 	private func cleanUpTextures() {
@@ -170,7 +174,9 @@ public class DDDVideoBufferTexture: DDDObject {
 		chromaTexture = nil
 
 		// Periodic texture cache flush every time the video frame has changed
-		guard let videoTextureCache = videoTextureCache else { return }
+		guard let videoTextureCache = videoTextureCache else {
+			return
+		}
 		CVOpenGLESTextureCacheFlush(videoTextureCache, 0)
 	}
 

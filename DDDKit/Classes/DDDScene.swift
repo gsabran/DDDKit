@@ -9,13 +9,23 @@
 import Foundation
 import GLMatrix
 
+/// Describe if the element is ready to be rendered
+@objc public enum RenderingResult: Int {
+	/// The element is not ready. The current rendering pass will be skipped
+	case notReady
+	/// The element is not ready. The current rendering pass will be retried
+	case notReadyButShouldRetrySync
+	/// The element is ready
+	case ok
+}
+
 /// A 3D scene
 open class DDDScene {
 	private var nodes = Set<DDDNode>()
 
 	init() {}
 
-	func render(with projection: Mat4, context: EAGLContext, in pool: DDDTexturePool) -> Bool {
+	func render(with projection: Mat4, context: EAGLContext, in pool: DDDTexturePool) -> RenderingResult {
 		do {
 			var properties = Set<DDDProperty>()
 			var programs = [DDDShaderProgram: [DDDNode]]()
@@ -37,8 +47,9 @@ open class DDDScene {
 					program.use()
 					for node in nodes {
 						try node.willRender(context: context)
-						if node.render(with: projection, pool: pool) {
-							return true
+						let isReady = node.render(with: projection, pool: pool)
+						if isReady != .ok {
+							return isReady
 						}
 						node.didRender()
 					}
@@ -47,7 +58,7 @@ open class DDDScene {
 		} catch {
 			print("could not render scene: \(error)")
 		}
-		return false
+		return .ok
 	}
 
 	/**

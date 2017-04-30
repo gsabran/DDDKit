@@ -35,11 +35,11 @@ public class DDDImageTexture: DDDProperty {
 		texture = DDDTexture(image: image)
 	}
 
-	override func prepareToBeUsed(in pool: DDDTexturePool) -> Bool {
+	override func prepareToBeUsed(in pool: DDDTexturePool) -> RenderingResult {
 		if slot == nil {
 			slot = pool.getNewTextureSlot(for: self)
 		}
-		return false
+		return .ok
 	}
 
 	override func attach(at location: GLint) {

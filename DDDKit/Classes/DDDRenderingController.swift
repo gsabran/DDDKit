@@ -11,6 +11,7 @@ import GLMatrix
 
 public class DDDRenderingController: NSObject {
 	static var count = 0
+	static weak var current: DDDRenderingController?
 	public var size: CGSize {
 		didSet {
 			if size != oldValue {
@@ -29,13 +30,25 @@ public class DDDRenderingController: NSObject {
 	private var displayLink: CADisplayLink?
 
 	/// Wether the rendering computation should be skipped
-	public var isPaused = false
+	public var isPaused = false {
+		didSet {
+			if oldValue != isPaused {
+				if isPaused {
+					stopLoop()
+				} else {
+					restartLoop()
+				}
+			}
+		}
+	}
 	/// The 3D scene to be displayed
 	public internal(set) var scene: DDDScene
 	/// An optional delegate
 	public weak var delegate: DDDSceneDelegate?
 	/// The camera vertical overture, in radian
 	public var cameraOverture = GLKMathDegreesToRadians(65)
+	/// A name that can be used for debugging purposes
+	public var name = "DDDRendering\(DDDRenderingController.count)"
 
 	private var texturesPool: DDDTexturePool?
 
@@ -85,8 +98,10 @@ public class DDDRenderingController: NSObject {
 	/// Attach the next DDDKit calls to the controller.
 	/// Should be done when dealing with multiple scenes
 	public func setAsCurrent() {
+		DDDRenderingController.current = self
 		EAGLContext.ensureContext(is: context)
 	}
+	private var hasRenderedOnce = false
 
 	/// Return a screenshot of the scene
 	public func screenshot() -> CVPixelBuffer? {
@@ -146,8 +161,9 @@ public class DDDRenderingController: NSObject {
 		                       GLenum(GL_COLOR_ATTACHMENT0),
 		                       CVOpenGLESTextureGetTarget(dstTexture),
 		                       CVOpenGLESTextureGetName(dstTexture), 0)
-		computeRendering()
-		glFlush()
+		if !computeRendering() {
+			return nil
+		}
 		return output
 	}
 
@@ -265,27 +281,36 @@ public class DDDRenderingController: NSObject {
 		setAsCurrent()
 		prepareScreenRendering()
 		delegate?.willRender?(sender: self)
-		computeRendering()
-		delegate?.didRender?(sender: self)
+		if computeRendering() {
+			delegate?.didRender?(sender: self)
+		}
 	}
 
-	private func computeRendering() {
+	private func computeRendering() -> Bool {
 		glClearColor(0, 0, 0, 0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
 		glViewport(0, 0, GLsizei(size.width), GLsizei(size.height))
 
-		guard let texturesPool = texturesPool else { return }
+		guard let texturesPool = texturesPool else { return false }
 
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
 
 		let aspect = Float(fabs(size.width / size.height))
 		let projection = GLKMatrix4MakePerspective(cameraOverture, aspect, 0.1, 400.0)
-		if scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool) {
+
+		let isReady = scene.render(with: Mat4(m: projection.m), context: context, in: texturesPool)
+		if isReady == .notReadyButShouldRetrySync {
 			return computeRendering()
 		}
 
 		context.presentRenderbuffer(Int(GL_RENDERBUFFER))
+		if isReady == .ok && !hasRenderedOnce {
+			// for some reason to be found, the first frame is empty
+			hasRenderedOnce = true
+			return false
+		}
+		return isReady == .ok
 	}
 
 	@objc private func applicationWillResignActive() {
@@ -309,7 +334,7 @@ public class DDDRenderingController: NSObject {
 	}
 
 	deinit {
-		setAsCurrent()
+		EAGLContext.ensureContext(is: context)
 		NotificationCenter.default.removeObserver(self)
 		DDDRenderingController.count -= 1
 	}

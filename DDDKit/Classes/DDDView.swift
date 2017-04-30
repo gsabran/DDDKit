@@ -85,11 +85,15 @@ open class DDDViewController: UIViewController {
 
 	open override func viewDidAppear(_ animated: Bool) {
 		isVisible = true
+		if !isPaused {
+			renderingController.isPaused = false
+		}
 		super.viewDidAppear(animated)
 	}
 
 	open override func viewWillDisappear(_ animated: Bool) {
 		isVisible = false
+		renderingController.isPaused = true
 		super.viewWillDisappear(animated)
 	}
 

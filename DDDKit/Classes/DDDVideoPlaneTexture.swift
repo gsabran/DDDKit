@@ -44,11 +44,11 @@ class DDDVideoPlaneTexture: DDDProperty {
 		return slot != nil
 	}
 
-	override func prepareToBeUsed(in pool: DDDTexturePool) -> Bool {
+	override func prepareToBeUsed(in pool: DDDTexturePool) -> RenderingResult {
 		if slot == nil {
 			slot = pool.getNewTextureSlot(for: self)
 		}
-		guard let videoTexture = videoTexture else { return false }
+		guard let videoTexture = videoTexture else { return .notReady }
 		return videoTexture.prepareToBeUsed()
 	}
 

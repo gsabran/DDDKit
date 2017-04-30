@@ -24,7 +24,7 @@ public class DDDProperty: DDDObject {
 	}
 	func dddWorldHasLoaded(context: EAGLContext) {}
 
-	func prepareToBeUsed(in pool: DDDTexturePool) -> Bool { return false }
+	func prepareToBeUsed(in pool: DDDTexturePool) -> RenderingResult { return .ok }
 
 	func attach(at location: GLint) {}
 

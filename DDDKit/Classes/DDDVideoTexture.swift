@@ -34,19 +34,20 @@ public class DDDVideoTexture: DDDVideoBufferTexture {
 		super.init(buffer: nil)
 	}
 
-	override func prepareToBeUsed() -> Bool {
-		guard let videoItem = player.currentItem else { return false }
+	override func prepareToBeUsed() -> RenderingResult {
+		guard let videoItem = player.currentItem else { return .notReady }
 		if self.videoItem !== videoItem {
 			hasRetrivedBufferForCurrentVideoItem = false
 		}
 		let hadRetrivedBufferForCurrentVideoItem = hasRetrivedBufferForCurrentVideoItem
-		refreshTexture()
+		let _ = refreshTexture()
 		if hasRetrivedBufferForCurrentVideoItem && !hadRetrivedBufferForCurrentVideoItem {
-			if delegate?.videoItemWillRenderForFirstTimeAtNextFrame?(sender: self) == true {
-				return true
+			if let isReady = delegate?.videoItemWillRenderForFirstTimeAtNextFrame?(sender: self),
+				isReady != .ok {
+				return isReady
 			}
 		}
-		return false
+		return .ok
 	}
 
 	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
@@ -79,13 +80,14 @@ public class DDDVideoTexture: DDDVideoBufferTexture {
 		return buffer
 	}
 
-	override func refreshTexture() {
+	override func refreshTexture() -> RenderingResult {
 		guard let pixelBuffer = retrievePixelBufferToDraw() else {
-			return
+			return super.refreshTexture()
 		}
 		buffer = pixelBuffer
-		super.refreshTexture()
+		let isReady = super.refreshTexture()
 		hasRetrivedBufferForCurrentVideoItem = true
+		return isReady
 	}
 
 	deinit {
@@ -119,7 +121,7 @@ public class DDDVideoTexture: DDDVideoBufferTexture {
 
 	- Return: wether the scene should be recomputed before drawing
 	*/
-	@objc optional func videoItemWillRenderForFirstTimeAtNextFrame(sender: DDDVideoTexture) -> Bool
+	@objc optional func videoItemWillRenderForFirstTimeAtNextFrame(sender: DDDVideoTexture) -> RenderingResult
 	/**
 	When a video item has received new pixel data
 	*/
