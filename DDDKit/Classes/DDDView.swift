@@ -58,7 +58,6 @@ open class DDDViewController: UIViewController {
 		DDDViewController.count += 1
 
 		let sceneView = DDDView()
-		sceneView.frame = view.frame
 		view.insertSubview(sceneView, at: 0)
 		sceneView.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate(
@@ -104,7 +103,6 @@ open class DDDViewController: UIViewController {
 
 	open override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-		sceneView.frame = view.frame
 
 		if renderingController != nil {
 			renderingController.size = sceneView.frame.size

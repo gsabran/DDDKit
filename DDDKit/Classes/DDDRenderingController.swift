@@ -308,7 +308,7 @@ public class DDDRenderingController: NSObject {
 		if isReady == .ok && !hasRenderedOnce {
 			// for some reason to be found, the first frame is empty
 			hasRenderedOnce = true
-			return false
+			return computeRendering()
 		}
 		return isReady == .ok
 	}
