@@ -39,3 +39,63 @@ public extension GLKQuaternion {
 		))
 	}
 }
+
+extension CVReturn {
+	func didError(from key: String) -> Bool {
+		if self != kCVReturnSuccess {
+			print("DDDKit error in \(key): \(self)")
+			return true
+		}
+		return false
+	}
+}
+
+extension CVPixelBufferPool {
+
+	/// Create an empty buffer pool
+	static func create(for size: CGSize, with format: OSType = kCVPixelFormatType_32BGRA) -> CVPixelBufferPool? {
+
+		var bufferPool: CVPixelBufferPool? = nil
+
+		let attributes: [String: Any] = [
+			kCVPixelFormatOpenGLESCompatibility as String: true,
+			kCVPixelBufferIOSurfacePropertiesKey as String: [:],
+			kCVPixelBufferPixelFormatTypeKey as String: format,
+			kCVPixelBufferWidthKey as String: size.width,
+			kCVPixelBufferHeightKey as String: size.height
+		]
+		let retainedBufferCount = 6
+		let poolAttributes: [String: Any] = [
+			kCVPixelBufferPoolMinimumBufferCountKey as String: retainedBufferCount
+		]
+
+		CVPixelBufferPoolCreate(
+			nil,
+			poolAttributes as CFDictionary,
+			attributes as CFDictionary,
+			&bufferPool
+		).didError(from: "CVPixelBufferPoolCreate")
+
+		guard bufferPool != nil else { return nil }
+
+		let bufferPoolAuxAttrs = [
+			kCVPixelBufferPoolAllocationThresholdKey as String:
+			retainedBufferCount
+			] as CFDictionary
+
+		var pixelBuffers = [CVPixelBuffer]()
+		var error: OSStatus? = nil
+		while true {
+			var pixelBuffer: CVPixelBuffer? = nil
+			error = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+				nil, bufferPool!, bufferPoolAuxAttrs, &pixelBuffer)
+
+			if error == kCVReturnWouldExceedAllocationThreshold { break }
+
+			pixelBuffers.append(pixelBuffer!)
+		}
+		pixelBuffers.removeAll()
+
+		return bufferPool
+	}
+}

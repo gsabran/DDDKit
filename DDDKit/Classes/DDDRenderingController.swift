@@ -53,8 +53,6 @@ public class DDDRenderingController: NSObject {
 	private var texturesPool: DDDTexturePool?
 
 	private var dstTextureCache: CVOpenGLESTextureCache?
-	private var bufferPool: CVPixelBufferPool!
-	private var bufferPoolAuxAttrs: CFDictionary!
 
 	public init(view: DDDView) {
 		size = view.frame.size
@@ -103,8 +101,13 @@ public class DDDRenderingController: NSObject {
 	}
 	private var hasRenderedOnce = false
 
-	/// Return a screenshot of the scene
-	public func screenshot() -> CVPixelBuffer? {
+	private var bufferPool: CVPixelBufferPool?
+
+	/**
+	Return a screenshot of the scene
+	- Parameter bufferPool: a pool of pixel buffer. It is recommended to pass one for efficiency
+	*/
+	public func screenshot(in bufferPool: CVPixelBufferPool?) -> CVPixelBuffer? {
 		setAsCurrent()
 		var out: CVPixelBuffer? = nil
 		var dest: CVOpenGLESTexture? = nil
@@ -112,14 +115,21 @@ public class DDDRenderingController: NSObject {
 		if dstTextureCache == nil {
 			setupRenderer()
 		}
-		guard let bufferPool = bufferPool else {
+		let pool: CVPixelBufferPool
+		if let x = bufferPool {
+			pool = x
+		} else if let x = self.bufferPool {
+			pool = x
+		} else if let x = CVPixelBufferPool.create(for: size) {
+			self.bufferPool = x
+			pool = x
+		} else {
 			return nil
 		}
 
-		CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+		CVPixelBufferPoolCreatePixelBuffer(
 			nil,
-			bufferPool,
-			bufferPoolAuxAttrs,
+			pool,
 			&out
 		)
 		guard let dstTextureCache = dstTextureCache, let output = out else {
@@ -140,7 +150,9 @@ public class DDDRenderingController: NSObject {
 			0,
 			&dest
 		)
-		guard let dstTexture = dest else { return nil }
+		guard let dstTexture = dest else {
+			return nil
+		}
 
 		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
 
@@ -171,55 +183,7 @@ public class DDDRenderingController: NSObject {
 		glDisable(GLenum(GL_DEPTH_TEST))
 		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
 		CVOpenGLESTextureCacheCreate(nil, nil, context, nil, &dstTextureCache)
-
-		let retainedBufferCount = 6
-		bufferPool = createPixelBufferPool(format: kCVPixelFormatType_32BGRA,
-		                                   count: retainedBufferCount)
-
-		bufferPoolAuxAttrs = [
-			kCVPixelBufferPoolAllocationThresholdKey as String:
-			retainedBufferCount
-			] as CFDictionary
-
-		var pixelBuffers = [CVPixelBuffer]()
-		var error: OSStatus? = nil
-		while true {
-			var pixelBuffer: CVPixelBuffer? = nil
-			error = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
-				nil, bufferPool, bufferPoolAuxAttrs, &pixelBuffer)
-
-			if error == kCVReturnWouldExceedAllocationThreshold { break }
-
-			pixelBuffers.append(pixelBuffer!)
-		}
-		pixelBuffers.removeAll()
 	}
-
-	func createPixelBufferPool(format: OSType,
-	                           count: Int) -> CVPixelBufferPool {
-
-		var bufferPool: CVPixelBufferPool? = nil
-
-		let attributes: [String: Any] = [
-			kCVPixelFormatOpenGLESCompatibility as String: true,
-			kCVPixelBufferIOSurfacePropertiesKey as String: [:],
-			kCVPixelBufferPixelFormatTypeKey as String: format,
-			kCVPixelBufferWidthKey as String: size.width,
-			kCVPixelBufferHeightKey as String: size.height
-		]
-
-		let poolAttributes: [String: Any] = [
-			kCVPixelBufferPoolMinimumBufferCountKey as String: count
-		]
-
-		CVPixelBufferPoolCreate(nil,
-		                        poolAttributes as CFDictionary,
-		                        attributes as CFDictionary,
-		                        &bufferPool)
-
-		return bufferPool!
-	}
-
 
 	private func initializeGL() {
 		resetGL()
@@ -260,7 +224,7 @@ public class DDDRenderingController: NSObject {
 		if framebuffer == 0 {
 			glGenFramebuffers(1, &framebuffer)
 		}
-
+		bufferPool = nil
 		scene.reset()
 	}
 

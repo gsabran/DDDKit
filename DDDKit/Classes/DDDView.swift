@@ -111,11 +111,6 @@ open class DDDViewController: UIViewController {
 		delegate?.didResize?(sender: self)
 	}
 
-	/// Return a screenshot of the view
-	public func screenshot() -> CVPixelBuffer? {
-		return renderingController.screenshot()
-	}
-
 	deinit {
 		DDDViewController.count -= 1
 	}
