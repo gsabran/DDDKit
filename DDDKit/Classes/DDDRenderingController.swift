@@ -49,6 +49,29 @@ public class DDDRenderingController: NSObject {
 	public var cameraOverture = GLKMathDegreesToRadians(65)
 	/// A name that can be used for debugging purposes
 	public var name = "DDDRendering\(DDDRenderingController.count)"
+	/// Wether the canvas is opaque or transparent
+	public var isOpaque = true {
+		didSet {
+			eagllayer?.isOpaque = isOpaque
+		}
+	}
+	private var cgColor: (GLfloat, GLfloat, GLfloat, GLfloat) = (0, 0, 0, 0)
+	/// The color for the canvas background
+	public var backgroundColor = CIColor(red: 0, green: 0, blue: 0, alpha: 0) {
+		didSet {
+			if oldValue != backgroundColor {
+				cgColor = (
+					GLfloat(backgroundColor.red),
+					GLfloat(backgroundColor.green),
+					GLfloat(backgroundColor.blue),
+					GLfloat(backgroundColor.alpha)
+				)
+				if backgroundColor.alpha == 1.0 && !isOpaque {
+					print("DDDKit Warning: setting a background with no alpha will prevent the canvas from being transparent")
+				}
+			}
+		}
+	}
 
 	private var texturesPool: DDDTexturePool?
 
@@ -179,6 +202,18 @@ public class DDDRenderingController: NSObject {
 		return output
 	}
 
+	/// Clear the canvas
+	public func clear() {
+		setAsCurrent()
+		glClearColor(
+			GLfloat(backgroundColor.red),
+			GLfloat(backgroundColor.green),
+			GLfloat(backgroundColor.blue),
+			GLfloat(backgroundColor.alpha)
+		)
+		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
+	}
+
 	fileprivate func setupRenderer() {
 		glDisable(GLenum(GL_DEPTH_TEST))
 		glBindFramebuffer(GLenum(GL_FRAMEBUFFER), framebuffer)
@@ -254,8 +289,6 @@ public class DDDRenderingController: NSObject {
 		if !scene.hasChanged {
 			return true
 		}
-		glClearColor(0, 0, 0, 0)
-		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))
 		glViewport(0, 0, GLsizei(size.width), GLsizei(size.height))
 
