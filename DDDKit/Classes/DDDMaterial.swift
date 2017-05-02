@@ -16,6 +16,7 @@ Attached to a DDDNode, it describes how the node should look like.
 public class DDDMaterial {
 	private(set) var properties = Set<DDDProgramProperty>()
 	private var videoTextures = Set<DDDVideoBufferTexture>()
+	private var propertiesHaveChanged = true
 
 	/// the shader program (ie vertex and fragment shaders)
 	public var shaderProgram: DDDShaderProgram? {
@@ -25,6 +26,7 @@ public class DDDMaterial {
 				// reattach the property to a uniform
 				prop.location = program.indexFor(uniformNamed: prop.locationName)
 			}
+			propertiesHaveChanged = true
 		}
 	}
 
@@ -42,6 +44,7 @@ public class DDDMaterial {
 	public func set(property: DDDProperty, for key: String) {
 		removeProperty(for: key)
 		properties.insert(DDDProgramProperty(property: property, named: key))
+		propertiesHaveChanged = true
 	}
 
 	/**
@@ -128,6 +131,7 @@ public class DDDMaterial {
 	public func removeProperty(for key: String) {
 		properties.filter({ return $0.locationName == key }).forEach { prop in
 			properties.remove(prop)
+			propertiesHaveChanged = true
 		}
 	}
 
@@ -162,6 +166,7 @@ public class DDDMaterial {
 	*/
 	public func remove(property videoTexture: DDDVideoTexture) {
 		videoTextures.remove(videoTexture)
+		propertiesHaveChanged = true
 	}
 
 	/**
@@ -170,9 +175,26 @@ public class DDDMaterial {
 	public func removeAllProperties() {
 		properties.removeAll()
 		videoTextures.removeAll()
+		propertiesHaveChanged = true
 	}
 
 	func reset() {
 		videoTextures.forEach { $0.reset() }
+		propertiesHaveChanged = true
+	}
+
+	func didRender() {
+		propertiesHaveChanged = false
+		videoTextures.forEach { $0.didRender() }
+	}
+
+	var hasChanged: Bool {
+		if propertiesHaveChanged {
+			return true
+		}
+		for tex in videoTextures {
+			if tex.hasChanged { return true }
+		}
+		return false
 	}
 }

@@ -7,6 +7,7 @@
 //
 
 import GLKit
+import GLMatrix
 
 extension EAGLContext {
 	static func ensureContext(is context: EAGLContext?) {
@@ -97,5 +98,18 @@ extension CVPixelBufferPool {
 		pixelBuffers.removeAll()
 
 		return bufferPool
+	}
+}
+
+extension Quat: Equatable {
+	public static func ==(lhs: Quat, rhs: Quat) -> Bool {
+		return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w
+	}
+}
+
+
+extension Vec3: Equatable {
+	public static func ==(lhs: Vec3, rhs: Vec3) -> Bool {
+		return lhs.v == rhs.v
 	}
 }

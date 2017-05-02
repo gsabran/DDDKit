@@ -9,6 +9,10 @@
 import AVFoundation
 /// Describes a video texture that can be used as a luma and chroma planes in a shader
 public class DDDVideoTexture: DDDVideoBufferTexture {
+	override var hasChanged: Bool {
+		return hasNewBufferToDraw || super.hasChanged
+	}
+
 	private static var itemsUsed = [Int: Int]()
 
 	private let player: VideoPlayer
@@ -50,15 +54,16 @@ public class DDDVideoTexture: DDDVideoBufferTexture {
 		return .ok
 	}
 
-	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
-		guard let videoItem = player.currentItem else { return nil }
+	/// If the player has received new buffer that can be drawn
+	private var hasNewBufferToDraw: Bool {
+		guard let videoItem = player.currentItem else { return false }
 		if videoOutput == nil || self.videoItem !== videoItem {
 			videoItem.outputs.flatMap({ return $0 as? AVPlayerItemVideoOutput }).forEach {
 				videoItem.remove($0)
 			}
 			if videoItem.status != AVPlayerItemStatus.readyToPlay {
 				// see https://forums.developer.apple.com/thread/27589#128476
-				return nil
+				return false
 			}
 
 			let pixelBuffAttributes = [
@@ -70,11 +75,17 @@ public class DDDVideoTexture: DDDVideoBufferTexture {
 			self.videoOutput = videoOutput
 			self.videoItem = videoItem
 		}
-		guard let videoOutput = videoOutput else { return nil }
+		guard let videoOutput = videoOutput else { return false }
 
 		let time = videoItem.currentTime()
-		if !videoOutput.hasNewPixelBuffer(forItemTime: time) { return nil }
-		guard let buffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
+		return videoOutput.hasNewPixelBuffer(forItemTime: time)
+	}
+
+	private func retrievePixelBufferToDraw() -> CVPixelBuffer? {
+		guard hasNewBufferToDraw,
+			let videoItem = player.currentItem else { return nil }
+		let time = videoItem.currentTime()
+		guard let buffer = videoOutput?.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
 			else { return nil }
 		delegate?.didCapture?(buffer: buffer, sender: self)
 		return buffer

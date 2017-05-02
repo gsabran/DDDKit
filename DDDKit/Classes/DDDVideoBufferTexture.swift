@@ -9,6 +9,10 @@
 import AVFoundation
 /// Describes a video texture that can be used as a luma and chroma planes in a shader
 public class DDDVideoBufferTexture: DDDObject {
+	var hasChanged: Bool {
+		return hasReceivedNewBuffer
+	}
+	var hasReceivedNewBuffer = true
 	/// wether this texture is actively used (if so, it might block rendering if it has not loaded yet)
 	public var isActive = true {
 		didSet {
@@ -28,6 +32,7 @@ public class DDDVideoBufferTexture: DDDObject {
 	public var buffer: CVPixelBuffer? {
 		didSet {
 			shouldRefreshTexture = true
+			hasReceivedNewBuffer = true
 		}
 	}
 	/**
@@ -47,6 +52,11 @@ public class DDDVideoBufferTexture: DDDObject {
 
 	override func reset() {
 		hasSetUp = false
+		hasReceivedNewBuffer = true
+	}
+
+	func didRender() {
+		hasReceivedNewBuffer = false
 	}
 
 	private var hasSetUp = false

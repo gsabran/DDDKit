@@ -251,6 +251,9 @@ public class DDDRenderingController: NSObject {
 	}
 
 	private func computeRendering() -> Bool {
+		if !scene.hasChanged {
+			return true
+		}
 		glClearColor(0, 0, 0, 0)
 		glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
 		glEnable(GLenum(GL_DEPTH_TEST))

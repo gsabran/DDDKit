@@ -24,11 +24,31 @@ An element that can be put in a 3d scene
 */
 public class DDDNode {
 	/// The node position from the origin
-	public var position = Vec3.Zero()
+	public var position = Vec3.Zero() {
+		didSet {
+			if oldValue != position {
+				attributesHaveChanged = true
+			}
+		}
+	}
 	/// The node rotation, in quaternion, from the camera orientation
-	public var rotation = Quat.fromValues(x: 0, y: 0, z: 0, w: 1)
+	public var rotation = Quat.fromValues(x: 0, y: 0, z: 0, w: 1) {
+		didSet {
+			if oldValue != rotation {
+				attributesHaveChanged = true
+			}
+		}
+	}
+
 	/// Describes the shape of the node, and how texture are mapped on that shape
-	public var geometry: DDDGeometry?
+	public var geometry: DDDGeometry? {
+		didSet {
+			if oldValue !== geometry {
+				attributesHaveChanged = true
+			}
+		}
+	}
+
 	/// Describes attributes related to the node's visual aspect
 	public let material = DDDMaterial()
 
@@ -44,6 +64,14 @@ public class DDDNode {
 		Mat4.fromQuat(q: rotation, andOutputTo: _modelView)
 		_modelView.translate(by: position)
 		return _modelView
+	}
+
+	private var attributesHaveChanged = true
+	var hasChanged: Bool {
+		if attributesHaveChanged {
+			return true
+		}
+		return material.hasChanged
 	}
 
 	private var hasSetup = false
@@ -120,10 +148,13 @@ public class DDDNode {
 	*/
 	func didRender() {
 		material.properties.forEach { $0.property.willBeUsedAtNextDraw = false }
+		attributesHaveChanged = false
+		material.didRender()
 	}
 
 	func reset() {
 		hasSetup = false
+		attributesHaveChanged = true
 		geometry?.reset()
 		material.reset()
 	}

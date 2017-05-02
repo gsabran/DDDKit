@@ -21,6 +21,16 @@ import GLMatrix
 
 /// A 3D scene
 open class DDDScene {
+	private var nodesHaveChanged = true
+	var hasChanged: Bool {
+		if nodesHaveChanged { return true }
+		for node in nodes {
+			if node.hasChanged {
+				return true
+			}
+		}
+		return false
+	}
 	private var nodes = Set<DDDNode>()
 
 	init() {}
@@ -51,10 +61,11 @@ open class DDDScene {
 						if isReady != .ok {
 							return isReady
 						}
-						node.didRender()
 					}
 				}
 			}
+			nodes.forEach { $0.didRender() }
+			nodesHaveChanged = false
 		} catch {
 			print("could not render scene: \(error)")
 		}
@@ -68,6 +79,7 @@ open class DDDScene {
 	*/
 	public func add(node: DDDNode) {
 		nodes.insert(node)
+		nodesHaveChanged = true
 	}
 
 	/**
@@ -77,6 +89,7 @@ open class DDDScene {
 	*/
 	public func remove(node: DDDNode) {
 		nodes.remove(node)
+		nodesHaveChanged = true
 	}
 
 	/**
@@ -84,9 +97,11 @@ open class DDDScene {
 	*/
 	public func empty() {
 		nodes.removeAll()
+		nodesHaveChanged = true
 	}
 	
 	func reset() {
 		nodes.forEach { $0.reset() }
+		nodesHaveChanged = true
 	}
 }
