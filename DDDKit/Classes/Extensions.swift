@@ -42,6 +42,7 @@ public extension GLKQuaternion {
 }
 
 extension CVReturn {
+	@discardableResult
 	func didError(from key: String) -> Bool {
 		if self != kCVReturnSuccess {
 			print("DDDKit error in \(key): \(self)")
