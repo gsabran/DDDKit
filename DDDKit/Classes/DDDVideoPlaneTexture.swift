@@ -44,9 +44,9 @@ class DDDVideoPlaneTexture: DDDProperty {
 		return slot != nil
 	}
 
-	override func prepareToBeUsed(in pool: DDDTexturePool) -> RenderingResult {
+	override func prepareToBeUsed(in pool: DDDTexturePool, for renderingId: Int) -> RenderingResult {
 		if slot == nil {
-			slot = pool.getNewTextureSlot(for: self)
+			slot = pool.getNewTextureSlot(for: self, for: renderingId)
 		}
 		guard let videoTexture = videoTexture else { return .notReady }
 		return videoTexture.prepareToBeUsed()
@@ -67,7 +67,7 @@ extension DDDVideoPlaneTexture: SlotDependent {
 		slot = nil
 	}
 
-	func canReleaseSlot() -> Bool {
-		return !willBeUsedAtNextDraw
+	func canReleaseSlot(for renderingId: Int) -> Bool {
+		return nextRenderingId != renderingId
 	}
 }

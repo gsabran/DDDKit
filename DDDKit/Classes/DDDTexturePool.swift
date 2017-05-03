@@ -31,7 +31,7 @@ class DDDTexturePool: DDDObject {
 		}
 	}
 
-	func getNewTextureSlot(for property: SlotDependent) -> DDDTextureSlot? {
+	func getNewTextureSlot(for property: SlotDependent, for renderingId: Int) -> DDDTextureSlot? {
 		let availableSlot = availableSlots.popLast()
 		if availableSlot != nil {
 			let slot = slots[availableSlot!]
@@ -39,12 +39,13 @@ class DDDTexturePool: DDDObject {
 			return slot
 		}
 		for slot in slots {
-			if slot.usedBy?.canReleaseSlot() != false {
+			if slot.usedBy?.canReleaseSlot(for: renderingId) != false {
 				slot.usedBy?.willLoseSlot()
 				slot.usedBy = property
 				return slot
 			}
 		}
+		print("DDDKit Warning: not enough slots for all textures")
 		return nil
 	}
 
@@ -77,5 +78,5 @@ class DDDTextureSlot {
 
 protocol SlotDependent: class {
 	func willLoseSlot()
-	func canReleaseSlot() -> Bool
+	func canReleaseSlot(for renderingId: Int) -> Bool
 }

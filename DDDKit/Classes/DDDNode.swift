@@ -61,14 +61,14 @@ public class DDDNode {
 	
 	- Parameter context: the current EAGL context in which the drawing will occur
 	*/
-	func willRender(context: EAGLContext) throws {
+	func willRender(context: EAGLContext, renderingId: Int) throws {
 		guard let _ = geometry, let _ = material.shaderProgram else {
 			throw DDDError.programNotSetUp
 		}
 
 		try setUpIfNotAlready(context: context)
 
-		material.properties.forEach { $0.property.willBeUsedAtNextDraw = true }
+		material.properties.forEach { $0.property.nextRenderingId = renderingId }
 	}
 
 	/**
@@ -78,11 +78,11 @@ public class DDDNode {
     - Parameter pool: the pool of texture slots where texture can be attached
 	- Return: wether scene computation should restart
 	*/
-	func render(with projection: Mat4, pool: DDDTexturePool) -> RenderingResult {
+	func render(with projection: Mat4, pool: DDDTexturePool, for renderingId: Int) -> RenderingResult {
 		guard let program = material.shaderProgram else { return .notReady }
 
 		for prop in material.properties {
-			let isReady = prop.property.prepareToBeUsed(in: pool)
+			let isReady = prop.property.prepareToBeUsed(in: pool, for: renderingId)
 			if isReady != .ok {
 				return isReady
 			}
@@ -112,14 +112,6 @@ public class DDDNode {
 		geometry.prepareToUse()
 		glDrawElements(GLenum(GL_TRIANGLES), GLsizei(geometry.indices.count), GLenum(GL_UNSIGNED_SHORT), vertexBufferOffset);
 		return .ok
-	}
-
-
-	/**
-	Signal that the node rendering is done. Used to reset some temporary states
-	*/
-	func didRender() {
-		material.properties.forEach { $0.property.willBeUsedAtNextDraw = false }
 	}
 
 	func reset() {

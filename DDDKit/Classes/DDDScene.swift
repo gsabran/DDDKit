@@ -42,16 +42,16 @@ open class DDDScene {
 				prop.loadIfNotLoaded(context: context)
 			}
 
+			let renderingId = Int(arc4random_uniform(UInt32.max))
 			for program in programs.keys {
 				if let nodes = programs[program] {
 					program.use()
 					for node in nodes {
-						try node.willRender(context: context)
-						let isReady = node.render(with: projection, pool: pool)
+						try node.willRender(context: context, renderingId: renderingId)
+						let isReady = node.render(with: projection, pool: pool, for: renderingId)
 						if isReady != .ok {
 							return isReady
 						}
-						node.didRender()
 					}
 				}
 			}

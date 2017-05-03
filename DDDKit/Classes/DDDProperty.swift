@@ -14,7 +14,8 @@ public class DDDProperty: DDDObject {
 	/// wether this property is actively used (if so, it might block rendering if it has not loaded yet)
 	public var isActive = true
 
-	var willBeUsedAtNextDraw = false
+	/// An identifier for the next drawing it's should be used at
+	var nextRenderingId: Int? = nil
 
 	private var hasLoaded = false
 	final func loadIfNotLoaded(context: EAGLContext) {
@@ -24,7 +25,7 @@ public class DDDProperty: DDDObject {
 	}
 	func dddWorldHasLoaded(context: EAGLContext) {}
 
-	func prepareToBeUsed(in pool: DDDTexturePool) -> RenderingResult { return .ok }
+	func prepareToBeUsed(in pool: DDDTexturePool, for renderingId: Int) -> RenderingResult { return .ok }
 
 	func attach(at location: GLint) {}
 
