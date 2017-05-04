@@ -20,7 +20,8 @@ public class DDDVec2Property: DDDProperty {
 	public init(_ value: GLKVector2) {
 		self.value = value
 	}
-	override func attach(at location: GLint) {
+	override func attach(at location: GLint, for program: DDDShaderProgram) {
+		super.attach(at: location, for: program)
 		glUniform2f(location, value.x, value.y)
 	}
 }

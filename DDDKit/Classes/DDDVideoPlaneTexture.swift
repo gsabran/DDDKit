@@ -52,8 +52,8 @@ class DDDVideoPlaneTexture: DDDProperty {
 		return videoTexture.prepareToBeUsed()
 	}
 
-	override func attach(at location: GLint) {
-
+	override func attach(at location: GLint, for program: DDDShaderProgram) {
+		super.attach(at: location, for: program)
 		guard let slot = slot, let textureId = videoTexture?.textureId(for: self) else { return }
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), textureId)

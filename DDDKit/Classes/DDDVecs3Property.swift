@@ -20,7 +20,8 @@ public class DDDVecs3Property: DDDProperty {
 	public init(_ value: [GLKVector3]) {
 		self.value = value.map({ v in return [v.x, v.y, v.z] }).flatMap({ return $0 })
 	}
-	override func attach(at location: GLint) {
+	override func attach(at location: GLint, for program: DDDShaderProgram) {
+		super.attach(at: location, for: program)
 		glUniform3fv(location, GLsizei(value.count / 3), value)
 	}
 }

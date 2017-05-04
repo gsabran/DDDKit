@@ -37,7 +37,7 @@ public class DDDNode {
 		self.id = DDDNode.id.hashValue
 	}
 	private static var id: Int = 0
-	fileprivate let id: Int
+	let id: Int
 
 	private let _modelView = Mat4.Identity()
 	var modelView: Mat4 {
@@ -89,9 +89,11 @@ public class DDDNode {
 		}
 		material.properties.forEach { prop in
 			let location = prop.location ?? program.indexFor(uniformNamed: prop.locationName)
-			if location != -1 {
+			if location != -1, let program = material.shaderProgram {
 				prop.location = location
-				prop.property.attach(at: location)
+				if prop.property.needsToAttach(at: location, for: program) {
+					prop.property.attach(at: location, for:  program)
+				}
 			}
 		}
 

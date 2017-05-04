@@ -20,7 +20,8 @@ public class DDDIntProperty: DDDProperty {
 	public init(_ value: Int) {
 		self.value = GLint(value)
 	}
-	override func attach(at location: GLint) {
+	override func attach(at location: GLint, for program: DDDShaderProgram) {
+		super.attach(at: location, for: program)
 		glUniform1i(location, value)
 	}
 }

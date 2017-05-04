@@ -15,3 +15,5 @@ public class DDDObject: NSObject {
 	
 	func reset() {}
 }
+
+typealias DDDObjectId = Int

@@ -12,11 +12,13 @@ import OpenGLES
 
 /// A shader property that can be used in a 2DSampler
 public class DDDImageTexture: DDDProperty {
-	private var image: CGImage
+	private var image: CGImage {
+		didSet {
+			propertyDidChange()
+		}
+	}
 	private var texture: DDDTexture?
 	fileprivate weak var slot: DDDTextureSlot?
-	private weak var lastSlotUsed: DDDTextureSlot?
-	private var locationsAlreadySet = Set<GLint>()
 
 	/**
 	Create a texture from an image
@@ -42,13 +44,9 @@ public class DDDImageTexture: DDDProperty {
 		return .ok
 	}
 
-	override func attach(at location: GLint) {
+	override func attach(at location: GLint, for program: DDDShaderProgram) {
+		super.attach(at: location, for: program)
 		guard let texture = texture, let slot = slot else { return }
-		if slot === lastSlotUsed && locationsAlreadySet.contains(location) { return } // avoid expensive texture binding
-
-		lastSlotUsed = slot
-		locationsAlreadySet.removeAll()
-		locationsAlreadySet.insert(location)
 
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)

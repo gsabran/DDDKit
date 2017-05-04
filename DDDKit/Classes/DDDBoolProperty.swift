@@ -20,7 +20,8 @@ public class DDDBoolProperty: DDDProperty {
 	public init(_ value: Bool) {
 		self.value = value
 	}
-	override func attach(at location: GLint) {
+	override func attach(at location: GLint, for program: DDDShaderProgram) {
 		glUniform1i(location, value ? 1 : 0)
+		super.attach(at: location, for: program)
 	}
 }

@@ -18,6 +18,7 @@ public class DDDProperty: DDDObject {
 	var nextRenderingId: Int? = nil
 
 	private var hasLoaded = false
+	private var attachedFor = Set<DDDTuple>()
 	final func loadIfNotLoaded(context: EAGLContext) {
 		if hasLoaded { return }
 		dddWorldHasLoaded(context: context)
@@ -27,7 +28,34 @@ public class DDDProperty: DDDObject {
 
 	func prepareToBeUsed(in pool: DDDTexturePool, for renderingId: Int) -> RenderingResult { return .ok }
 
-	func attach(at location: GLint) {}
+	/// Wether the property has changed and needs to be attached
+	func needsToAttach(at location: GLint, for program: DDDShaderProgram) -> Bool {
+		return !attachedFor.contains(DDDTuple(location: location, node: program.hashValue))
+	}
+
+	func attach(at location: GLint, for program: DDDShaderProgram) {
+		attachedFor.insert(DDDTuple(location: location, node: program.hashValue))
+	}
+
+	/// To be called when the property's value has changed
+	func propertyDidChange() {
+		attachedFor.removeAll()
+	}
 
 	func isReadyToBeUsed() -> Bool { return true }
 }
+
+struct DDDTuple: Hashable, Equatable {
+	let location: GLint
+	let node: DDDObjectId
+
+	var hashValue: Int {
+		return (Int(location) + node).hashValue
+	}
+
+	static func ==(lhs: DDDTuple, rhs: DDDTuple) -> Bool {
+		return lhs.location == rhs.location && lhs.node == rhs.node
+	}
+}
+
+

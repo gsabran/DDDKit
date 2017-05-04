@@ -28,6 +28,8 @@ public class DDDVideoBufferTexture: DDDObject {
 	public var buffer: CVPixelBuffer? {
 		didSet {
 			shouldRefreshTexture = true
+			lumaPlane.propertyDidChange()
+			chromaPlane.propertyDidChange()
 		}
 	}
 	/**
