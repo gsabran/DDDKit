@@ -42,7 +42,7 @@ open class DDDScene {
 				prop.loadIfNotLoaded(context: context)
 			}
 
-			let renderingId = Int(arc4random_uniform(UInt32.max))
+			let renderingId = Int(arc4random_uniform(1000000))
 			for program in programs.keys {
 				if let nodes = programs[program] {
 					program.use()
