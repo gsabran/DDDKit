@@ -27,19 +27,15 @@ open class DDDScene {
 
 	func render(with projection: Mat4, context: EAGLContext, in pool: DDDTexturePool) -> RenderingResult {
 		do {
-			var properties = Set<DDDProperty>()
 			var programs = [DDDShaderProgram: [DDDNode]]()
 			nodes.forEach { node in
 				node.material.properties.forEach { prop in
-					properties.insert(prop.property)
+					prop.property.loadIfNotLoaded(context: context)
 				}
 				if let program = node.material.shaderProgram {
 					programs[program] = programs[program] ?? [DDDNode]()
 					programs[program]?.append(node)
 				}
-			}
-			properties.forEach { prop in
-				prop.loadIfNotLoaded(context: context)
 			}
 
 			let renderingId = Int(arc4random_uniform(1000000))
