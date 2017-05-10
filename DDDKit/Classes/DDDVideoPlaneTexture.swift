@@ -17,7 +17,7 @@ class DDDVideoPlaneTexture: DDDProperty {
 			hasReceivedNewData = hasReceivedData
 		}
 	}
-	var hasReceivedNewData = false
+	private var hasReceivedNewData = false
 	static var count = 0
 	let id: Int
 
@@ -53,8 +53,10 @@ class DDDVideoPlaneTexture: DDDProperty {
 	}
 
 	override func attach(at location: GLint, for program: DDDShaderProgram) {
+		guard let slot = slot, let textureId = videoTexture?.textureId(for: self) else {
+			return
+		}
 		super.attach(at: location, for: program)
-		guard let slot = slot, let textureId = videoTexture?.textureId(for: self) else { return }
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), textureId)
 		glUniform1i(location, slot.id)

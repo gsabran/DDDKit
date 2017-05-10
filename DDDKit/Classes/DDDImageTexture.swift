@@ -45,12 +45,12 @@ public class DDDImageTexture: DDDProperty {
 	}
 
 	override func attach(at location: GLint, for program: DDDShaderProgram) {
-		super.attach(at: location, for: program)
 		guard let texture = texture, let slot = slot else { return }
 
 		glActiveTexture(slot.glId)
 		glBindTexture(GLenum(GL_TEXTURE_2D), texture.id)
 		glUniform1i(location, slot.id)
+		super.attach(at: location, for: program)
 	}
 }
 

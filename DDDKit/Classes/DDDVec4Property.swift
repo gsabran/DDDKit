@@ -21,7 +21,7 @@ public class DDDVec4Property: DDDProperty {
 		self.value = value
 	}
 	override func attach(at location: GLint, for program: DDDShaderProgram) {
-		super.attach(at: location, for: program)
 		glUniform4f(location, value.x, value.y, value.z, value.w)
+		super.attach(at: location, for: program)
 	}
 }

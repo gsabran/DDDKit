@@ -22,7 +22,7 @@ public class DDDFloatProperty: DDDProperty {
 		super.init()
 	}
 	override func attach(at location: GLint, for program: DDDShaderProgram) {
-		super.attach(at: location, for: program)
 		glUniform1f(location, value)
+		super.attach(at: location, for: program)
 	}
 }

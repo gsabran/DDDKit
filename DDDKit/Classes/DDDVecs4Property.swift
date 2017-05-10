@@ -21,7 +21,7 @@ public class DDDVecs4Property: DDDProperty {
 		self.value = value.map({ v in return [v.x, v.y, v.z, v.w] }).flatMap({ return $0 })
 	}
 	override func attach(at location: GLint, for program: DDDShaderProgram) {
-		super.attach(at: location, for: program)
 		glUniform4fv(location, GLsizei(value.count / 4), value)
+		super.attach(at: location, for: program)
 	}
 }
