@@ -30,7 +30,8 @@ public class DDDProperty: DDDObject {
 
 	/// Wether the property has changed and needs to be attached
 	func needsToAttach(at location: GLint, for program: DDDShaderProgram) -> Bool {
-		return !attachedFor.contains(DDDTuple(location: location, node: program.hashValue))
+		return true
+//		return !attachedFor.contains(DDDTuple(location: location, node: program.hashValue))
 	}
 
 	func attach(at location: GLint, for program: DDDShaderProgram) {
