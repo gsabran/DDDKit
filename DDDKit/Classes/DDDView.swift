@@ -49,9 +49,11 @@ open class DDDViewController: UIViewController {
 		didMove(toParentViewController: viewController)
 	}
 
-	public required init?(coder aDecoder: NSCoder) {
-		fatalError("DDDViewController should not be initialized from a coder")
-	}
+    required public init(coder aDecoder: NSCoder) {
+        self.isPaused = false
+        DDDViewController.count += 1
+        super.init(coder: aDecoder)!
+    }
 
 	open override func viewDidLoad() {
 		super.viewDidLoad()

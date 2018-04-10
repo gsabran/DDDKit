@@ -1,5 +1,5 @@
 PODS:
-  - DDDKit (1.0.2):
+  - DDDKit (1.3.0):
     - GLMatrix (= 0.1.5)
   - GLMatrix (0.1.5)
 
@@ -8,12 +8,12 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   DDDKit:
-    :path: "../"
+    :path: ../
 
 SPEC CHECKSUMS:
-  DDDKit: 5c340109079421c828df84293e37d48a8abe8d0b
+  DDDKit: b091ad23c159efa7a12bcf4b0c7299413e26d7c1
   GLMatrix: 59e00baabb2b7d942c6c77ab09bdb2d020ccf91f
 
 PODFILE CHECKSUM: 893c6a9bea368e31a28e21c2766ef70b7bb63463
 
-COCOAPODS: 1.2.0
+COCOAPODS: 1.4.0
