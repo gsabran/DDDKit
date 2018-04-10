@@ -71,33 +71,35 @@ open class DDD360VideoViewController: DDDViewController {
 
 		do {
 			defaultShader = DDDFragmentShader(from:
-				"precision mediump float;\n" +
-					"\n" +
-					"uniform sampler2D SamplerY;\n" +
-					"uniform sampler2D SamplerUV;\n" +
-					"uniform sampler2D u_image;\n" +
-					"uniform mediump vec3 color;\n" +
-					"\n" +
-					"varying mediump vec2 v_textureCoordinate;\n" +
-					"// header modifier here\n" +
-					"\n" +
-					"\n" +
-					"mediump vec3 pixelAt(mediump vec2 textureCoordinate) {\n" +
-					"  mediump vec3 yuv;\n" +
-					"\n" +
-					"  yuv.x = texture2D(SamplerY, textureCoordinate).r;\n" +
-					"  yuv.yz = texture2D(SamplerUV, textureCoordinate).rg - vec2(0.5, 0.5);\n" +
-					"\n" +
-					"  // Using BT.709 which is the standard for HDTV\n" +
-					"  return mat3(      1,       1,      1,\n" +
-					"         0, -.18732, 1.8556,\n" +
-					"         1.57481, -.46813,      0) * vec3(yuv.xyz);\n" +
-					"}\n" +
-					"\n" +
-					"void main() {\n" +
-					"    gl_FragColor = vec4(pixelAt(v_textureCoordinate), 1.0);\n" +
-					"  // body modifier here\n" +
-				"}\n"
+"""
+precision mediump float;
+
+uniform sampler2D SamplerY;
+uniform sampler2D SamplerUV;
+uniform sampler2D u_image;
+uniform mediump vec3 color;
+
+varying mediump vec2 v_textureCoordinate;
+// header modifier here
+
+
+mediump vec3 pixelAt(mediump vec2 textureCoordinate) {
+  mediump vec3 yuv;
+
+  yuv.x = texture2D(SamplerY, textureCoordinate).r;
+  yuv.yz = texture2D(SamplerUV, textureCoordinate).rg - vec2(0.5, 0.5);
+
+  // Using BT.709 which is the standard for HDTV
+  return mat3(      1,       1,      1,
+                    0, -.18732, 1.8556,
+              1.57481, -.46813,      0) * vec3(yuv.xyz);
+}
+
+void main() {
+    gl_FragColor = vec4(pixelAt(v_textureCoordinate), 1.0);
+      // body modifier here
+}
+"""
 			)
 			let program = try DDDShaderProgram(fragment: defaultShader)
 			videoNode.material.shaderProgram = program
@@ -120,11 +122,17 @@ open class DDD360VideoViewController: DDDViewController {
 
 	private var hAngle: CGFloat = 0.0
 	private var vAngle: CGFloat = 0.0
+    private var lastRecorderVector = CGPoint.zero
 	@objc private func didPan(sender: UIPanGestureRecognizer) {
+        if sender.state == .began {
+            lastRecorderVector = .zero
+        }
 		guard let view = sender.view else { return }
 		let vector = sender.translation(in: view)
-		hAngle += -CGFloat(vector.x / view.frame.width / 5)
-		vAngle += CGFloat(vector.y / view.frame.height / 10)
+		hAngle += -CGFloat((vector.x - lastRecorderVector.x) / view.frame.width / 5) * 20
+		vAngle += CGFloat((vector.y - lastRecorderVector.y) / view.frame.height / 10) * 20
+        lastRecorderVector = vector
+        
 		let q = GLKQuaternionInvert(GLKQuaternion(right: hAngle, top: vAngle)).q
 		videoNode.rotation = Quat(x: q.0, y: q.1, z: q.2, w: q.3)
 	}
