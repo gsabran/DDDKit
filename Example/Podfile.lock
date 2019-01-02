@@ -1,19 +1,23 @@
 PODS:
-  - DDDKit (1.3.0):
+  - DDDKit (1.4.0):
     - GLMatrix (= 0.1.5)
   - GLMatrix (0.1.5)
 
 DEPENDENCIES:
   - DDDKit (from `../`)
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - GLMatrix
+
 EXTERNAL SOURCES:
   DDDKit:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
-  DDDKit: b091ad23c159efa7a12bcf4b0c7299413e26d7c1
+  DDDKit: 945f641db78d48fde73027e32b05ac083ff7ddb9
   GLMatrix: 59e00baabb2b7d942c6c77ab09bdb2d020ccf91f
 
 PODFILE CHECKSUM: 893c6a9bea368e31a28e21c2766ef70b7bb63463
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0

@@ -32,7 +32,6 @@ class ViewController: DDD360VideoViewController {
 	}
 
 	private func setUpVideoPlayback() {
-		show(from: URL(string: "https://s3.amazonaws.com/mettavr/adhoc-uploads/k2LytGGex5.qt")!)
+		show(from: Bundle.main.url(forResource: "video-sample", withExtension: "qt")!)
 	}
 }
-

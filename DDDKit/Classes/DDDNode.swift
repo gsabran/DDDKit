@@ -24,7 +24,7 @@ An element that can be put in a 3d scene
 */
 public class DDDNode {
 	/// The node position from the origin
-	public var position = Vec3.Zero()
+    public var position: Vec3 = Vec3.Zero()
 	/// The node rotation, in quaternion, from the camera orientation
 	public var rotation = Quat.fromValues(x: 0, y: 0, z: 0, w: 1)
 	/// Describes the shape of the node, and how texture are mapped on that shape
